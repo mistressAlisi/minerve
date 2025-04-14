@@ -2,7 +2,8 @@ export class    AbstractDashboardApp {
     settings = {
        "loading_toast":"#loading_toast",
         "nav-link-cls":[".nav-link",".nav-dlink"],
-        "on_submit_complete":false
+        "on_submit_complete":false,
+        "toastSuccessCls":"toast-success"
     }
     urls = {
 
@@ -334,13 +335,15 @@ export class    AbstractDashboardApp {
             if (modal !== false) {
                 $(modal).modal('hide');
             }
-            if (res.msg !== false) {
-                this.successToast("Success!", res.msg);
-            } else {
-                this.successToast("Success!","Operation Complete!");
+            if (!("silent" in res)) {
+                if (res.msg !== false) {
+                    this.successToast("Success!", res.msg);
+                } else {
+                    this.successToast("Success!", "Operation Complete!");
+                }
             }
             if (callback !== false) {
-                callback();
+                callback(res);
             }
         }  else {
             this.errorToast('Error!',res.err);
@@ -358,7 +361,7 @@ export class    AbstractDashboardApp {
         try {
             this.elements["modal"] = $(this.settings["modal_id"]);
         } catch (e) {}
-         $.ajax({
+        $.ajax({
             url:  url,
             method: 'POST',
             context: this,
@@ -369,12 +372,18 @@ export class    AbstractDashboardApp {
             data: new FormData(this.elements["form"][0])
             }).done(this.generic_post_form_handle.bind(this,modal,callback));
 
+
+
+
     }
 
     _generic_apiget_handle(callback,data) {
         this.hideLoading();
         if (data.res == "ok") {
-            this.successToast("Complete!","Operation Complete!");
+            if (!("silent" in data))
+            {
+                this.successToast("Complete!", "Operation Complete!");
+            }
             if (callback !== false) {
                 callback();
             }
