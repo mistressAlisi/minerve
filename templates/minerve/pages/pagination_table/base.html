@@ -16,16 +16,21 @@
         <div class="p-2 border border-primary border-opacity-50 rounded search-form-div">
         <input type="hidden" id="paginator_url"  value="{{ paginator_url }}"/>
         <input type="hidden" id="paginator_murl" value="{{ paginator_meta_url }}"/>
-        <form method="GET" action="#" onsubmit="window.agent.paginator.start(event); return false;" class="form">
+        <form method="GET" action="#" onsubmit="window.agent.paginator.start(event); return false;" {% if pagination_filter_on_change_event %} onchange="{{ pagination_filter_on_change_event }}" {% endif %} class="form">
         {%  crispy pagination_filter_form %}
 
         </form>
         </div>
-       <div style="min-height: 40vh;">
+       </div>
        <div id="table_placeholder" class="table_placeholder align-middle text-center text-muted opacity-50 p-5 m-5">
        <h1><i class="fa-duotone fa-solid fa-file-chart-column fa-5x"></i></h1>
        <br/>
        <h4>Ready: Select Some Parameters above and click 'search'.</h4>
+       </div>
+       <div id="table_loading" class="table_loading align-middle text-center text-muted opacity-50 p-5 m-5">
+       <h1><i class="fa-duotone fa-solid fa-spinner-scale fa-spin-pulse fa-5x text-purple"></i></h1>
+       <br/>
+       <h4>Please wait: loading...</h4>
        </div>
        <div id="table_container">
        </div>

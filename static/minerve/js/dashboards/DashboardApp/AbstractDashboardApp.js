@@ -13,6 +13,7 @@ export class    AbstractDashboardApp {
     }
     modal = false
     last_modal_created = false
+    last_modal_created_bso = false
     _parent_walker(parent,target_node) {
        if (target_node == undefined) { target_node = "DIV"};
        while (parent.nodeName != target_node) {
@@ -142,6 +143,22 @@ export class    AbstractDashboardApp {
                 method: 'GET',
                 context: this
             }).done(this._confirm_and_get_ajax_url_handle.bind(this,callback))
+        }
+    }
+
+    confirm_and_post_ajax_url(surl,post_form,confirm_msg,callback) {
+        if  (confirm(confirm_msg)) {
+            this.showLoading();
+            let url = this.urls["_api_prefix"]+surl;
+            $.ajax({
+                url:  url,
+                data:     new FormData(post_form[0]),
+                method: 'POST',
+                context: this,
+                cache: false,
+                contentType: false,
+                processData: false
+                }).done(this._confirm_and_get_ajax_url_handle.bind(this, callback))
         }
     }
 
@@ -307,6 +324,7 @@ export class    AbstractDashboardApp {
         return [modalDiv,modalBody];
     }
 
+
     generic_ajax_modal_dialogue(title, url, add_prefix=false,max_width="75%",dismissable=true,load_callback=false,modal_css_class=false,destroy_old_modal=false) {
             if (destroy_old_modal === true) {
                 if (this.last_modal_created !== false) {
@@ -323,10 +341,15 @@ export class    AbstractDashboardApp {
             }
             this.showLoading();
             modal[1].load(turl,false,this.hideLoading.bind(this,load_callback));
+            modal[0].on("hidden.bs.modal",function(event){
+                $(event.target).remove();
+
+            });
             bso.show();
 
             /** You might need these two things later :) **/
             this.last_modal_created = modal[0];
+            this.last_modal_created_bso = bso;
             return [modal[0],bso]
     }
 
