@@ -53,7 +53,11 @@
             <form id="edit_form{{ edit_form_suffix }}" method="POST" onsubmit="{{ edit_form_onsubmit }}" data-post-url="{{  edit_post_url }}" data-get-url="{{ edit_get_url }}" data-delete-url="{{ edit_delete_url }}">
             <div class="modal-body">
             {%  csrf_token %}
-            {% bootstrap_form edit_form %}
+              {% if MINERVE_USE_CRISPY_FORMS %}
+                {% crispy edit_form %}
+            {% else %}
+                {% bootstrap_form edit_form %}
+            {% endif %}
             </div>
             <div class="modal-footer">
                 <div class="d-flex justify-content-end">
@@ -69,6 +73,7 @@
             window.agent.settings.edit_form_id = "#edit_form{{ edit_form_suffix }}";
             window.agent.settings.modal_id = "#edit_modal{{ edit_form_suffix }}";
             window.agent.settings.on_submit_complete = function(){$("#exec_paginator_search").trigger('click')};
+
             </script>
         {%  endif %}
     {%  endblock %}

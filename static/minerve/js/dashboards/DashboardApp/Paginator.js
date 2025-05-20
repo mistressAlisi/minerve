@@ -13,11 +13,13 @@ export class Paginator {
         "paginator_url": "",
         "paginator_meta_url": "",
     }
+    parent = false
     elements = {}
     search_params = {}
     current_page = 0
     total_pages = 0
     _handleTableLoad(res) {
+
         this.hide_load();
     }
     _handleMeta(res) {
@@ -25,6 +27,13 @@ export class Paginator {
             this.total_pages = res.paginator.total_pages;
             this.current_page = res.paginator.current_page;
             this.load_page(this.current_page);
+            try {
+                this.parent.elements["form"] = $(this.parent.settings["edit_form_id"]);
+                this.parent._edit_form_loader(res.values);
+            } catch (e) {
+                console.warn("Unable to execute _edit_form_loader after HandleMeta:");
+                console.warn(e);
+            }
 
         }
 
@@ -62,12 +71,18 @@ export class Paginator {
 
 
     }
-
-    constructor(settings, urls, elements) {
+    pre_start() {
+        this.elements["loading"] = $(this.settings["table_loading_div"])
+        this.elements["loading"].hide();
+    }
+    constructor(parent,settings, urls, elements) {
         $.extend(this.settings, settings);
         $.extend(this.urls, urls);
         $.extend(this.elements, elements);
+        this.parent = parent;
+
         console.log("Paginator(tm) Ready");
+
 
 
 
