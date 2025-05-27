@@ -20,7 +20,11 @@
     <script src="/static/minerve/js/components/bootstrap/colour-modes.js"></script>
 
     <!-- Font Awesome !-->
-    <script src="https://kit.fontawesome.com/{{ FONT_AWESOME_KIT }}" crossorigin="anonymous"></script>
+    {% if FONT_AWESOME_KIT != False %}
+        <script src="https://kit.fontawesome.com/{{ FONT_AWESOME_KIT }}" crossorigin="anonymous"></script>
+    {% else %}
+        <script src="https://kit.fontawesome.com/52b95d724a.js" crossorigin="anonymous"></script>
+    {% endif %}
 
     <!-- Fonts! -->
     <style>
@@ -57,4 +61,5 @@
   {% block MINERVE_PAGE_FOOTER %}
   {% endblock %}
   </body>
+
 </html>
