@@ -182,7 +182,9 @@ export class    AbstractDashboardApp extends AbstractApp {
     _submit_form_handle(data) {
         this.hideLoading();
         if (data.res == "ok") {
-            this.successToast("Complete!", "Operation Complete!");
+            if (!"silent" in data) {
+                this.successToast("Complete!", "Operation Complete!");
+            }
             $(this.settings["edit_form_id"])[0].reset();
             try {
                 this.elements["modal"].hide();

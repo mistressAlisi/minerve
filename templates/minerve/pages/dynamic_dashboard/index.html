@@ -1,0 +1,188 @@
+{% extends "minerve/base/page.html" %}
+{% block MINERVE_PAGE_HEADER %}
+  <!-- Top Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark fixed-top border-bottom">
+      <div class="container-fluid">
+    <!-- Mobile Sidebar Toggle -->
+    <button class="btn btn-outline-light d-md-none me-2" id="toggleSidebarBtn" type="button">
+      <i class="bi bi-list"></i>
+    </button>
+      <a class="navbar-brand d-flex align-items-center" href="/">
+      {% if vdomain.website_icon %}
+            <img src="{{ vdomain.website_icon.url }}" alt="icon" width="40" height="40" class="me-2">
+      {% elif vhost.website_icon %}
+          <img src="{{ vhost.website_icon.url }}" alt="icon" width="40" height="40" class="me-2">
+      {% endif %}
+      {% if vdomain.show_website_name %}
+        <span class="d-none d-md-inline">{{ vdomain.website_name }}</span>
+      {% endif %}
+      </a>
+
+      <div class="collapse navbar-collapse justify-content-center">
+        <ul class="navbar-nav mb-2 mb-lg-0">
+        {% for entry in DYNAMIC_DASHBOARD_TOP_MENU %}
+          <li class="nav-item">
+            <a class="nav-link" href="{{ entry.url }}"
+                    {% if entry.onclick %} onclick="{{ entry.onclick }}"{% endif %}
+                    {%  if entry.active %} active="active"{% endif %}
+                    {% if entry.help_text %} title="{{ entry.help_text }}"{% endif %}>
+            {% if entry.icon %}
+                <i class="{{ entry.icon }}"></i>
+            {% endif %}
+                {{ entry.name }}
+            </a>
+          </li>
+        {% endfor %}
+
+        </ul>
+      </div>
+
+      <div class="d-flex">
+      {% block MINERVE_NAV_LOGIN_AREA %}
+        <button class="btn btn-outline-primary me-2">Login</button>
+        <button class="btn btn-primary">Sign Up</button>
+      {% endblock %}
+      </div>
+    </div>
+  </nav>
+{% endblock %}
+{% block MINERVE_PAGE_BODY %}
+<!-- Full-page container with vertical flex layout -->
+<div class="d-flex flex-column" style="height: 100vh;">
+
+  <!-- SIDEBARS & MAIN (horizontal layout) -->
+  <div class="d-flex flex-grow-1" style="position: relative; margin-top: 56px;">
+
+    <!-- First Sidebar -->
+    <div id="mainSidebar" class="sidebar d-flex flex-column align-items-center">
+      {% for entry in DYNAMIC_DASHBOARD_SIDE_MENU %}
+        <a class="nav-link side-link py-3"
+           {% if entry.submenu_entries %}
+              href="javascript:void(0);"
+              onclick="toggleSecondSidebar({{ forloop.counter0 }})"
+           {% else %}
+              href="{{ entry.url }}"
+           {% endif %}
+           title="{{ entry.name }}">
+          <i class="{{ entry.icon }}"></i>
+        </a>
+      {% endfor %}
+
+      <div class="flex-grow-1"></div>
+
+      <div class="bottom-icon mb-3">
+        <a href="#" title="Account" onclick="toggleSecondSidebar('account');"><i class="bi bi-person-circle"></i></a>
+      </div>
+    </div>
+
+    <!-- Second Sidebar -->
+    <div class="sidebar-right" id="secondSidebar">
+      {% for entry in DYNAMIC_DASHBOARD_SIDE_MENU %}
+        <div class="second-sidebar-section d-none" id="second-sidebar-{{ forloop.counter0 }}">
+          <h6><i class="{{ entry.icon }}"></i> {{ entry.name }}: Menu</h6>
+          <hr class="opacity-50" />
+          <ul class="list-group list-group-flush">
+            {% for sub in entry.submenu_entries %}
+              <li class="list-item">
+                <a class="nav-link d-flex align-items-center py-2" href="{{ sub.url }}"
+                   {% if sub.active %}active="active"{% endif %}
+                   title="{{ sub.label }}">
+                  <i class="{{ sub.icon }} me-2"></i> <span>{{ sub.label }}</span>
+                </a>
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+      {% endfor %}
+
+
+      <div class="second-sidebar-section d-none" id="second-sidebar-account">
+        <h6 class=""><i class="bi bi-person-circle"></i> Account: Menu</h6>
+         <hl class="opacity-50"></hl>
+        <ul class="list-group list-group-flush">
+            <li class="list-item"><a class="nav-link d-flex align-items-center py-2"  href="/my/teams"><i class="fa-duotone fa-solid fa-people-group"></i>&#160;My Teams</a></li>
+            <li class="list-item"><a class="nav-link d-flex align-items-center py-2"  href="/my/messages"><i class="fa-duotone fa-solid fa-envelope"></i>&#160;My Notifications</a></li>
+            <li class="list-item"><a class="nav-link d-flex align-items-center py-2"  href="/my/profile"><i class="fa-duotone fa-solid fa-address-card"></i>&#160;My Profile</a></li>
+            <li class="list-item"><a class="nav-link d-flex align-items-center py-2"  href="/auth/account/timezone"><i class="fa-duotone fa-solid fa-globe"></i>&#160;Region Settings</a></li>
+            <li class="list-item"><a class="nav-link d-flex align-items-center py-2"  href="/auth/account/phone_pin"><i class="fa-duotone fa-solid fa-phone"></i>&#160;Phone Wagering Settings</a></li>
+            <li class="list-item"><a class="nav-link d-flex align-items-center py-2"  href="/auth/account/password"><i class="fa-duotone fa-solid fa-lock"></i>&#160;Security Settings</a></li>
+            <li class="list-item"><a class="nav-link d-flex align-items-center py-2"  href="/signout"><i class="fa-duotone fa-solid fa-person-from-portal"></i>&#160;Sign Out</a></li>
+        </ul>
+    </div>
+    <hr class="border-white opacity-25 border-2"/>
+    <div class="flex-container">
+    <button class="btn btn-outline-light" onclick="$('#secondSidebar').removeClass('open');">Close Sidebar</button>
+    </div>
+    </div>
+
+    <!-- Main content fills remaining space -->
+  {% block DYNAMIC_DASHBOARD_PRE_BODY %}
+  {% endblock %}
+    <main class="content flex-grow-1 d-flex flex-column pb-4 px-1" id="main-content">
+      {% block DYNAMIC_DASHBOARD_BODY %}
+        <div class="flex-grow-1 d-flex flex-column justify-content-center align-items-center text-center">
+          <h1>Main Content Area</h1>
+          <p class="lead">Replace the DYNAMIC_DASHBOARD_BODY block to put content here.</p>
+        </div>
+      {% endblock %}
+    </main>
+
+  </div>
+</div>
+<script>
+  // Open second sidebar and show correct submenu
+  function toggleSecondSidebar(index) {
+    const $sidebar = $('#secondSidebar');
+    $sidebar.addClass('open');
+
+    $('.second-sidebar-section').addClass('d-none');
+    $('#second-sidebar-' + index).removeClass('d-none');
+  }
+
+  // Toggle main sidebar (mobile)
+  $('#toggleSidebarBtn').on('click', function () {
+    $('#mainSidebar').toggleClass('show');
+  });
+
+  // Collapse Bootstrap top navbar on link click (mobile only)
+  $('.navbar-collapse .nav-link').on('click', function () {
+    if ($(window).width() < 768) {
+      $('.navbar-collapse').collapse('hide');
+    }
+  });
+
+  // ✅ Collapse mainSidebar on link click (mobile only)
+  $('#mainSidebar .nav-link').on('click', function () {
+    if ($(window).width() < 768) {
+      $('#mainSidebar').removeClass('show');
+    }
+  });
+
+  // Click-outside handler to close both sidebars on mobile
+  $(document).on('click', function (e) {
+    const $target = $(e.target);
+
+    // Close mainSidebar if clicked outside
+    if (
+      $('#mainSidebar').hasClass('show') &&
+      !$target.closest('#mainSidebar').length &&
+      !$target.closest('#toggleSidebarBtn').length
+    ) {
+      $('#mainSidebar').removeClass('show');
+    }
+
+    // Close secondSidebar if clicked outside
+    if (
+      $('#secondSidebar').hasClass('open') &&
+      !$target.closest('#secondSidebar').length &&
+      !$target.closest('.sidebar').length
+    ) {
+      $('#secondSidebar').removeClass('open');
+    }
+  });
+</script>
+<link href="/static/minerve/css/pages/dynamic_dashboard/index.css" rel="stylesheet">
+{% endblock %}
+{% block MINERVE_PAGE_FOOTER %}
+    {% include "minerve/pages/dynamic_dashboard/loading_toast.html" %}
+{% endblock %}
