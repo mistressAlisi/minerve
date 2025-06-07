@@ -348,7 +348,13 @@ export class    AbstractDashboardApp extends AbstractApp {
                 callback(res);
             }
         } else {
-            this.errorToast('Error!', res.err);
+            try {
+                var errstr = this._parse_ajax_error(res.data)
+                this.errorToast('Error!', errstr);
+            } catch (e) {
+                console.warn("Unable to Parse data inside _parse_ajax_error:",e)
+                this.errorToast('Error!', res.err);
+            }
         }
     }
 

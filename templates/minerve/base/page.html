@@ -38,6 +38,7 @@
     {% for css in MINERVE_PAGE_CSS %}
         <link href="/static/{{ css.css_file_path }}" rel="stylesheet">
     {% endfor %}
+    <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
   </head>
   <body class="h-100 w-100 d-flex text-center" {% if MINERVE_BODY_THEME %} {% endif %}>
 {% block MINERVE_COLOUR_MODE_SWITCH %}

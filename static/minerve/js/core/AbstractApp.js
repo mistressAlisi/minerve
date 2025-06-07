@@ -81,6 +81,11 @@ export class AbstractApp {
            console.error('Error!',res.error);
         }
     }
+
+    _clear_invalid() {
+        $(this.elements["form"]).find("input").removeClass('is-invalid');
+        $(this.elements["form"]).find("select").removeClass('is-invalid');
+    }
     generic_post_form(event,modal=false,callback=false) {
         event.preventDefault();
         event.stopPropagation();
@@ -90,6 +95,7 @@ export class AbstractApp {
             url = this.urls["_api_prefix"] + url;
         }
         this.elements["form"] = $(form);
+        this._clear_invalid()
         try {
             this.elements["modal"] = $(this.settings["modal_id"]);
         } catch (e) {}
