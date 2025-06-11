@@ -17,7 +17,9 @@
         <span class="d-none d-md-inline">{{ vdomain.website_name }}</span>
       {% endif %}
       </a>
-
+      {% block MINERVE_NAV_PAGE_NAME %}
+          {# replace this block to add a unique page name in the dashboard. #}
+      {% endblock %}
       <div class="collapse navbar-collapse justify-content-center">
         <ul class="navbar-nav mb-2 mb-lg-0">
         {% for entry in DYNAMIC_DASHBOARD_TOP_MENU %}

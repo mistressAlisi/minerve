@@ -12,6 +12,8 @@
     <title>{% block bootstrap5_title %}
         {{ apperance.site_name }}
     {% endblock %}</title>
+    <!-- poppler !-->
+    <script src="https://unpkg.com/@popperjs/core@2"></script>
     <!--     JQuery -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
     <script src="https://unpkg.com/bs5-toast/dist/bs5-toast.js"></script>
@@ -39,6 +41,7 @@
         <link href="/static/{{ css.css_file_path }}" rel="stylesheet">
     {% endfor %}
     <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+
   </head>
   <body class="h-100 w-100 d-flex text-center" {% if MINERVE_BODY_THEME %} {% endif %}>
 {% block MINERVE_COLOUR_MODE_SWITCH %}
