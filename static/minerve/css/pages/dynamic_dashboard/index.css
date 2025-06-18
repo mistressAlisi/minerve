@@ -119,10 +119,10 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  transition: margin-left 0.3s ease;
   min-height: calc(100vh - 56px);
   overflow-y: auto;
-  transition: margin-left 0.3s ease;
+  transition: margin-left 1s ease;
+  padding-top: 95vh;
 }
 
 /* Optional: adjust content when second sidebar is open */
