@@ -1,15 +1,23 @@
 import {AbstractApp} from "/static/minerve/js/core/AbstractApp.js";
+import {ElementForm} from "./Elements/Form.js";
+import {ElementInput} from "./Elements/Input.js";
+import {ElementHiddenInput} from "./Elements/HiddenInput.js";
+import {ElementSubmit} from "./Elements/Submit.js";
+import {ElementH} from "./Elements/H.js";
+import {Modal} from "./Elements/Modal.js";
 
 export class    AbstractDashboardApp extends AbstractApp {
     settings = {
         "loading_toast": "#loading_toast",
         "nav-link-cls": [".nav-link", ".nav-dlink"],
         "on_submit_complete": false,
-        "toastSuccessCls": "toast-success"
+        "toastSuccessCls": "toast-success",
+
     }
     urls = {}
     elements = {}
     modal = false
+    last_modal = false
     last_modal_created = false
     last_modal_created_bso = false
 
@@ -56,7 +64,7 @@ export class    AbstractDashboardApp extends AbstractApp {
             this._showModal();
 
         } else {
-            var errStr = this._parse_ajax_error(data);
+            var errStr = this._parse_ajax_error(data.data);
             this.errorToast('<h6><i class="fa-solid fa-xmark"></i>&#160;Error!', 'An Error Occured! ' + errStr);
             console.error("Unable to execute Operation: ", errStr)
             return false;
@@ -197,7 +205,8 @@ export class    AbstractDashboardApp extends AbstractApp {
                 this.settings.on_submit_complete();
             }
         } else {
-            this.errorToast("Error!", data.err)
+            var errstr = this._parse_ajax_error(data.data);
+            this.errorToast("Error!", errstr)
         }
 
 
@@ -254,82 +263,149 @@ export class    AbstractDashboardApp extends AbstractApp {
         alertDiv.append(text_span);
         return alertDiv;
     }
+    /** Deprecated: **/
+    // _modal_div_factory(title_str, max_width, dismissable = true, css_class = false) {
+    //     let modalId = Math.floor(Date.now() / 1000);
+    //     let modalDiv = $("<div>", {class: "modal", id: modalId});
+    //     if (css_class !== false) {
+    //         modalDiv.addClass(css_class);
+    //     }
+    //     let modalBody = $("<div>", {class: "modal-body", text: "...Loading..."});
+    //     let dialog = $("<div>", {class: "modal-dialog", css: {"max-height": "95%", "overflow-y": "auto"}});
+    //     if (max_width !== false) {
+    //         dialog.css({'width': max_width, 'max-width': max_width});
+    //     }
+    //     let content = $("<div>", {class: "modal-content"});
+    //     let header = $("<div>", {class: "modal-header"});
+    //     let title = $("<div>", {class: "modal-title h4", html: title_str});
+    //     let footer = $("<div>", {class: "modal-footer"});
+    //     header.append(title);
+    //     if (dismissable == true) {
+    //         let xbtn = $("<button>", {
+    //             class: "btn-close",
+    //             type: "button",
+    //             "data-bs-dismiss": "modal",
+    //             "data-bs-target": "#" + modalId
+    //         });
+    //         let clsbtn = $("<button>", {
+    //             class: "btn btn-secondary",
+    //             type: "button",
+    //             text: "Close",
+    //             "data-bs-dismiss": "modal",
+    //             "data-bs-target": "#" + modalId
+    //         });
+    //         header.append(xbtn);
+    //         footer.append(clsbtn);
+    //
+    //     } else {
+    //         modalDiv.attr('data-bs-backdrop', 'static');
+    //         modalDiv.attr('data-bs-keyboard', 'false');
+    //     }
+    //
+    //     content.append(header);
+    //     content.append(modalBody);
+    //     content.append(footer);
+    //     dialog.append(content);
+    //
+    //     modalDiv.append(dialog);
+    //     $(document.body).append(modalDiv);
+    //     return [modalDiv, modalBody];
+    // }
+    // generic_ajax_modal_update(title,url,max_width="75%",dismissable = true, css_class = false, load_callback = false, modal_css_class = false, destroy_old_modal = false) {
 
-    _modal_div_factory(title_str, max_width, dismissable = true, css_class = false) {
-        let modalId = Math.floor(Date.now() / 1000);
-        let modalDiv = $("<div>", {class: "modal", id: modalId});
-        if (css_class !== false) {
-            modalDiv.addClass(css_class);
+    _handle_generic_ajax_update_form_res(res) {
+        this.hideLoading();
+        let ref = false;
+        if ("refresh" in this.last_modal_created) {
+            ref = true;
         }
-        let modalBody = $("<div>", {class: "modal-body", text: "...Loading..."});
-        let dialog = $("<div>", {class: "modal-dialog", css: {"max-height": "95%", "overflow-y": "auto"}});
-        if (max_width !== false) {
-            dialog.css({'width': max_width, 'max-width': max_width});
+        this.last_modal_created.bs_modal.hide();
+        this.last_modal_created.modalDiv.remove();
+        if (ref === true) {
+            location.reload();
         }
-        let content = $("<div>", {class: "modal-content"});
-        let header = $("<div>", {class: "modal-header"});
-        let title = $("<div>", {class: "modal-title h4", html: title_str});
-        let footer = $("<div>", {class: "modal-footer"});
-        header.append(title);
-        if (dismissable == true) {
-            let xbtn = $("<button>", {
-                class: "btn-close",
-                type: "button",
-                "data-bs-dismiss": "modal",
-                "data-bs-target": "#" + modalId
-            });
-            let clsbtn = $("<button>", {
-                class: "btn btn-secondary",
-                type: "button",
-                text: "Close",
-                "data-bs-dismiss": "modal",
-                "data-bs-target": "#" + modalId
-            });
-            header.append(xbtn);
-            footer.append(clsbtn);
+    }
+    _handle_generic_ajax_update_form(event) {
+        this.generic_post_form(event,false,this._handle_generic_ajax_update_form_res.bind(this));
+    }
+    _handle_generic_ajax_modal_update(options,res) {
+      this.hideLoading();
+      let modal = new Modal(options);
+      let form = new ElementForm({"post_url":res.post_url});
+      for (var i in res.fields) {
+          var field = res.fields[i];
+          var field_obj = false;
+          // console.log(field);
+          var type = field.type;
+          delete field.type;
+          switch (type) {
+              case "uuid":
+                 field_obj = new ElementHiddenInput(field.name,field.value,field);
+              break;
+              default:
+                  field_obj = new ElementInput(field.name,field.type,field)
+          }
+          // console.warn(field_obj);
+          if (field_obj != false) {
+              form.append(field_obj.get_el());
+          }
+      }
+      var submit = new ElementSubmit({"label":"Update Record"});
+      form.append(submit.get_el());
+      form.get_el().on("submit", this._handle_generic_ajax_update_form.bind(this))
+      modal.modalBody.empty();
+      modal.modalBody.append(form.get_el());
+      modal.modalDiv.on("hidden.bs.modal", function (event) {
+           $(event.target).remove();
+      });
+      modal.bs_modal.show();
+      if ("refresh" in options) {
+          modal.refresh = true;
+      }
+      this.last_modal_created = modal
+     // console.log(res,options);
 
-        } else {
-            modalDiv.attr('data-bs-backdrop', 'static');
-            modalDiv.attr('data-bs-keyboard', 'false');
-        }
-
-        content.append(header);
-        content.append(modalBody);
-        content.append(footer);
-        dialog.append(content);
-
-        modalDiv.append(dialog);
-        $(document.body).append(modalDiv);
-        return [modalDiv, modalBody];
     }
 
+    generic_ajax_modal_update(url,{...options}) {
+        if ('destroy_old_modal' in options) {
+            if (this.last_modal_created !== false) {
+                this.last_modal_created.modalDiv.remove();
+            }
+        }
+        if (!'skip_prefix' in options) {
+            url = this.urls["_api_prefix"] + url;
+        }
+        this.generic_api_getreq(url,false,this._handle_generic_ajax_modal_update.bind(this,options),false);
+
+    }
 
     generic_ajax_modal_dialogue(title, url, add_prefix = false, max_width = "75%", dismissable = true, load_callback = false, modal_css_class = false, destroy_old_modal = false) {
         if (destroy_old_modal === true) {
             if (this.last_modal_created !== false) {
-                $(this.last_modal_created).remove();
+                this.last_modal_created.modalDiv.remove();
             }
         }
-        let modal = this._modal_div_factory(title, max_width, dismissable, modal_css_class);
-
-        let bso = new bootstrap.Modal(modal[0]);
-
-        let turl = url;
-        if (add_prefix === true) {
-            turl = this.urls["_prefix"] + turl;
+        let modal = new Modal(title, max_width, dismissable, modal_css_class);
+        if (url != false) {
+            let turl = url;
+            if (add_prefix === true) {
+                turl = this.urls["_prefix"] + turl;
+            }
+            this.showLoading();
+            modal.modalBody.load(turl, false, this.hideLoading.bind(this, load_callback));
         }
-        this.showLoading();
-        modal[1].load(turl, false, this.hideLoading.bind(this, load_callback));
-        modal[0].on("hidden.bs.modal", function (event) {
+        modal.modalDiv.on("hidden.bs.modal", function (event) {
             $(event.target).remove();
 
         });
-        bso.show();
+        modal.bs_modal.show();
 
         /** You might need these two things later :) **/
-        this.last_modal_created = modal[0];
-        this.last_modal_created_bso = bso;
-        return [modal[0], bso]
+        this.last_modal_created = modal.modalDiv;
+        this.last_modal_created_bso = modal.bs_modal;
+        this.last_modal = modal;
+        return [modal.modalDiv, modal.bs_modal];
     }
 
     generic_post_form_handle(modal, callback, res) {
@@ -338,22 +414,27 @@ export class    AbstractDashboardApp extends AbstractApp {
                 $(modal).modal('hide');
             }
             if (!("silent" in res)) {
+                let hdr = "<i class=\"fa-duotone fa-solid fa-check text-success pe-2\"></i> Success!";
+                if ("header" in res) {
+                    hdr = res.header;
+                }
                 if (res.msg !== false) {
-                    this.successToast("Success!", res.msg);
+                    this.successToast(hdr, res.msg);
                 } else {
-                    this.successToast("Success!", "Operation Complete!");
+                    this.successToast(hdr, "Operation Complete!");
                 }
             }
             if (callback !== false) {
                 callback(res);
             }
         } else {
+            let hdr = "<i class=\"fa-duotone fa-solid fa-circle-exclamation text-error pe-2\"></i> Error: "+res.err+"!";
             try {
                 var errstr = this._parse_ajax_error(res.data)
-                this.errorToast('Error!', errstr);
+                this.errorToast(hdr, errstr);
             } catch (e) {
                 console.warn("Unable to Parse data inside _parse_ajax_error:",e)
-                this.errorToast('Error!', res.err);
+                this.errorToast(hdr, res.err);
             }
         }
     }

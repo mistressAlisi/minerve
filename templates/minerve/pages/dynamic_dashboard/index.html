@@ -53,7 +53,7 @@
 <div class="d-flex flex-column" style="height: 100vh;">
 
   <!-- SIDEBARS & MAIN (horizontal layout) -->
-  <div class="d-flex flex-grow-1" style="position: relative; margin-top: 56px;">
+  <div class="d-flex flex-grow-1" style="position: relative;">
 
     <!-- First Sidebar -->
     <div id="mainSidebar" class="sidebar d-flex flex-column align-items-center">
@@ -88,8 +88,8 @@
               <li class="list-item">
                 <a class="nav-link d-flex align-items-center py-2" href="{{ sub.url }}"
                    {% if sub.active %}active="active"{% endif %}
-                   title="{{ sub.label }}">
-                  <i class="{{ sub.icon }} me-2"></i> <span>{{ sub.label }}</span>
+                   title="{{ sub.name }}" help_text="{{ sub.help_text }}">
+                  <i class="{{ sub.icon }} me-2"></i> <span>{{ sub.name }}</span>
                 </a>
               </li>
             {% endfor %}
@@ -97,20 +97,16 @@
         </div>
       {% endfor %}
 
-
+    {% block DYNAMIC_DASHBOARD_SECOND_NAVBAR %}
       <div class="second-sidebar-section d-none" id="second-sidebar-account">
-        <h6 class=""><i class="bi bi-person-circle"></i> Account: Menu</h6>
+        <h6 class=""><i class="bi bi-person-circle"></i> Second Dashbar: Menu</h6>
          <hl class="opacity-50"></hl>
         <ul class="list-group list-group-flush">
-            <li class="list-item"><a class="nav-link d-flex align-items-center py-2"  href="/my/teams"><i class="fa-duotone fa-solid fa-people-group"></i>&#160;My Teams</a></li>
-            <li class="list-item"><a class="nav-link d-flex align-items-center py-2"  href="/my/messages"><i class="fa-duotone fa-solid fa-envelope"></i>&#160;My Notifications</a></li>
             <li class="list-item"><a class="nav-link d-flex align-items-center py-2"  href="/my/profile"><i class="fa-duotone fa-solid fa-address-card"></i>&#160;My Profile</a></li>
-            <li class="list-item"><a class="nav-link d-flex align-items-center py-2"  href="/auth/account/timezone"><i class="fa-duotone fa-solid fa-globe"></i>&#160;Region Settings</a></li>
-            <li class="list-item"><a class="nav-link d-flex align-items-center py-2"  href="/auth/account/phone_pin"><i class="fa-duotone fa-solid fa-phone"></i>&#160;Phone Wagering Settings</a></li>
-            <li class="list-item"><a class="nav-link d-flex align-items-center py-2"  href="/auth/account/password"><i class="fa-duotone fa-solid fa-lock"></i>&#160;Security Settings</a></li>
-            <li class="list-item"><a class="nav-link d-flex align-items-center py-2"  href="/signout"><i class="fa-duotone fa-solid fa-person-from-portal"></i>&#160;Sign Out</a></li>
+
         </ul>
     </div>
+    {% endblock %}
     <hr class="border-white opacity-25 border-2"/>
     <div class="flex-container">
     <button class="btn btn-outline-light" onclick="$('#secondSidebar').removeClass('open');">Close Sidebar</button>

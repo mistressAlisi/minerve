@@ -15,14 +15,19 @@ export class AbstractApp {
     }
     _parse_ajax_error(data) {
         var errStr="";
-        var errors = data.e;
-        for (var eks in errors) {
-            if (typeof(errors[eks][0]) != "string") {
-                errStr = errStr + " <em>" + eks + "</em>: " + errors[eks][0]["message"] + "<br/>";
-            } else {
-                errStr = errStr + " <em>" + eks + "</em>: " + errors[eks][0] + "<br/>";
+        if (typeof data == "string") {
+             errStr = data;
+
+        } else {
+            var errors = data.e;
+            for (var eks in errors) {
+                if (typeof (errors[eks][0]) != "string") {
+                    errStr = errStr + " <em>" + eks + "</em>: " + errors[eks][0]["message"] + "<br/>";
+                } else {
+                    errStr = errStr + " <em>" + eks + "</em>: " + errors[eks][0] + "<br/>";
+                }
+                $(this.elements["form"]).find("#id_" + eks).addClass('is-invalid');
             }
-            $(this.elements["form"]).find("#id_"+eks).addClass('is-invalid');
         }
         return errStr;
     }
@@ -78,7 +83,8 @@ export class AbstractApp {
                 callback(res);
             }
         }  else {
-           console.error('Error!',res.error);
+           var errorstr = this._parse_ajax_error(res.data);
+           console.error('Error!',errorstr);
         }
     }
 
@@ -120,7 +126,7 @@ export class AbstractApp {
                 this.successToast("Complete!", "Operation Complete!");
             }
             if (callback !== false) {
-                callback();
+                callback(data);
             }
         } else {
             this.errorToast("Error!",data.error)
@@ -128,9 +134,12 @@ export class AbstractApp {
 
     }
 
-    generic_api_getreq(url,data,callback=false) {
+    generic_api_getreq(url,data,callback=false,bind=true) {
         this.showLoading();
         url = this.urls["_api_prefix"] + url+"?d="+data;
+        if (bind === true) {
+            callback = this._generic_apiget_handle.bind(this,callback)
+        }
         $.ajax({
             url:  url,
             method: 'GET',
@@ -138,12 +147,36 @@ export class AbstractApp {
             cache: false,
             contentType: false,
             processData: false
-            }).done(this._generic_apiget_handle.bind(this,callback));
+            }).done(callback);
     }
 
+   get_cookie(name) {
+        let cookieValue = null;
+          if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let c of cookies) {
+              const cookie = c.trim();
+              // Does this cookie string begin with the name we want?
+              if (cookie.startsWith(name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+              }
+            }
+          }
+          return cookieValue;
+        }
     constructor(settings,urls,elements) {
       $.extend(this.settings,settings);
       $.extend(this.urls,urls);
       $.extend(this.elements,elements);
+      const csrftoken = this.get_cookie('csrftoken'); // or whatever your token is named
+      $.ajaxSetup({
+          beforeSend: function (xhr, settings) {
+              // Only add CSRF token to same-origin requests
+              if (!(/^http:.*/.test(settings.url) || /^https:.*/.test(settings.url))) {
+                  xhr.setRequestHeader("X-CSRFToken", csrftoken);
+              }
+          }
+      })
     }
 }
