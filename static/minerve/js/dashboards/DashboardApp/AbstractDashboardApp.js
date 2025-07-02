@@ -248,70 +248,21 @@ export class    AbstractDashboardApp extends AbstractApp {
     start_detail_view() {
         $(this.settings.detail_view_modal_sel).modal('show');
     }
-
-    _alert_div_factory(alert_str, css_class, fa_icon = false) {
-        let alertId = Math.floor(Date.now() / 1000);
-        let alertDiv = $("<div>", {class: "alert", id: alertId});
-        if (css_class !== false) {
-            alertDiv.addClass(css_class);
-        }
-        if (fa_icon !== false) {
-            let fa_icon_el = $("<i>", {class: fa_icon});
-            alertDiv.append(fa_icon_el);
-        }
-        let text_span = $("<div>", {html: alert_str});
-        alertDiv.append(text_span);
-        return alertDiv;
-    }
-    /** Deprecated: **/
-    // _modal_div_factory(title_str, max_width, dismissable = true, css_class = false) {
-    //     let modalId = Math.floor(Date.now() / 1000);
-    //     let modalDiv = $("<div>", {class: "modal", id: modalId});
+    // Deprecated
+    // _alert_div_factory(alert_str, css_class, fa_icon = false) {
+    //     let alertId = Math.floor(Date.now() / 1000);
+    //     let alertDiv = $("<div>", {class: "alert", id: alertId});
     //     if (css_class !== false) {
-    //         modalDiv.addClass(css_class);
+    //         alertDiv.addClass(css_class);
     //     }
-    //     let modalBody = $("<div>", {class: "modal-body", text: "...Loading..."});
-    //     let dialog = $("<div>", {class: "modal-dialog", css: {"max-height": "95%", "overflow-y": "auto"}});
-    //     if (max_width !== false) {
-    //         dialog.css({'width': max_width, 'max-width': max_width});
+    //     if (fa_icon !== false) {
+    //         let fa_icon_el = $("<i>", {class: fa_icon});
+    //         alertDiv.append(fa_icon_el);
     //     }
-    //     let content = $("<div>", {class: "modal-content"});
-    //     let header = $("<div>", {class: "modal-header"});
-    //     let title = $("<div>", {class: "modal-title h4", html: title_str});
-    //     let footer = $("<div>", {class: "modal-footer"});
-    //     header.append(title);
-    //     if (dismissable == true) {
-    //         let xbtn = $("<button>", {
-    //             class: "btn-close",
-    //             type: "button",
-    //             "data-bs-dismiss": "modal",
-    //             "data-bs-target": "#" + modalId
-    //         });
-    //         let clsbtn = $("<button>", {
-    //             class: "btn btn-secondary",
-    //             type: "button",
-    //             text: "Close",
-    //             "data-bs-dismiss": "modal",
-    //             "data-bs-target": "#" + modalId
-    //         });
-    //         header.append(xbtn);
-    //         footer.append(clsbtn);
-    //
-    //     } else {
-    //         modalDiv.attr('data-bs-backdrop', 'static');
-    //         modalDiv.attr('data-bs-keyboard', 'false');
-    //     }
-    //
-    //     content.append(header);
-    //     content.append(modalBody);
-    //     content.append(footer);
-    //     dialog.append(content);
-    //
-    //     modalDiv.append(dialog);
-    //     $(document.body).append(modalDiv);
-    //     return [modalDiv, modalBody];
+    //     let text_span = $("<div>", {html: alert_str});
+    //     alertDiv.append(text_span);
+    //     return alertDiv;
     // }
-    // generic_ajax_modal_update(title,url,max_width="75%",dismissable = true, css_class = false, load_callback = false, modal_css_class = false, destroy_old_modal = false) {
 
     _handle_generic_ajax_update_form_res(res) {
         this.hideLoading();
@@ -383,10 +334,18 @@ export class    AbstractDashboardApp extends AbstractApp {
     generic_ajax_modal_dialogue(title, url, add_prefix = false, max_width = "75%", dismissable = true, load_callback = false, modal_css_class = false, destroy_old_modal = false) {
         if (destroy_old_modal === true) {
             if (this.last_modal_created !== false) {
-                this.last_modal_created.modalDiv.remove();
+                if (this.last_modal_created.modalDiv !== undefined) {
+                    this.last_modal_created.modalDiv.remove();
+                }
             }
         }
-        let modal = new Modal(title, max_width, dismissable, modal_css_class);
+        let options = {
+            "title":title,
+            "max_width":max_width,
+            "dismissable":dismissable,
+            "modal_css_class":modal_css_class
+        }
+        let modal = new Modal(options);
         if (url != false) {
             let turl = url;
             if (add_prefix === true) {

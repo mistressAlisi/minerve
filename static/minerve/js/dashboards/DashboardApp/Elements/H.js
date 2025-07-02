@@ -2,7 +2,7 @@ import {_elementProto} from "./prototype.js";
 
 export class ElementH extends _elementProto {
 
-    constructor(id,size=1,text,props) {
+    constructor(size=1,text,props) {
         super()
         this.tag = "h"+size;
         this.props = {

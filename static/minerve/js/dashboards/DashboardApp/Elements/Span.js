@@ -1,10 +1,10 @@
 import {_elementProto} from "./prototype.js";
 
-export class ElementP extends _elementProto {
+export class ElementSpan extends _elementProto {
 
     constructor(text,props) {
         super()
-        this.tag = "p"
+        this.tag = "span"
         this.props = {
             "html":text
         }
