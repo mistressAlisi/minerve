@@ -44,6 +44,11 @@
 
   </head>
   <body class="h-100 w-100 d-flex text-center" {% if MINERVE_BODY_THEME %} {% endif %}>
+      <!-- custom body Scripts !-->
+    {%  for js in MINERVE_PAGE_JS %}
+    <script src='{{ js }}'></script>
+    {% endfor %}
+
 {% block MINERVE_COLOUR_MODE_SWITCH %}
 {% include "minerve/components/bootstrap/colour-mode-switch.html" %}
 {% endblock %}

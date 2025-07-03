@@ -1,5 +1,19 @@
 {% extends "minerve/base/page.html" %}
-{% block MINERVE_PAGE_HEADER %}
+{% block MINERVE_PAGE_NAV_HEADER %}
+     <!-- Selectize !-->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.15.2/css/selectize.default.min.css"
+      integrity="sha512-pTaEn+6gF1IeWv3W1+7X7eM60TFu/agjgoHmYhAfLEU8Phuf6JKiiE8YmsNC0aCgQv4192s4Vai8YZ6VNM6vyQ=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.15.2/js/selectize.min.js"
+      integrity="sha512-IOebNkvA/HZjMM7MxL0NYeLYEalloZ8ckak+NDtOViP7oiYzG5vn6WVXyrJDiJPhl4yRdmNAG49iuLmhkUdVsQ=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
   <!-- Top Navbar -->
   <nav class="navbar navbar-expand-lg navbar-dark fixed-top border-bottom">
       <div class="container-fluid">
@@ -18,21 +32,46 @@
       {% endif %}
       </a>
       {% block MINERVE_NAV_PAGE_NAME %}
-          {# replace this block to add a unique page name in the dashboard. #}
+
       {% endblock %}
       <div class="collapse navbar-collapse justify-content-center">
         <ul class="navbar-nav mb-2 mb-lg-0">
         {% for entry in DYNAMIC_DASHBOARD_TOP_MENU %}
-          <li class="nav-item">
-            <a class="nav-link" href="{{ entry.url }}"
+
+            <li class="nav-item {% if entry.has_submenus %}dropdown{% endif %}">
+            <a class="nav-link {% if entry.has_submenus %}dropdown-toggle{% endif %}" href="{{ entry.url }}"
                     {% if entry.onclick %} onclick="{{ entry.onclick }}"{% endif %}
                     {%  if entry.active %} active="active"{% endif %}
-                    {% if entry.help_text %} title="{{ entry.help_text }}"{% endif %}>
+                    {% if entry.help_text %} title="{{ entry.help_text }}"{% endif %}
+                    {% if entry.has_submenus %} data-bs-toggle="dropdown" aria-expanded="false" {% endif %}>
+
             {% if entry.icon %}
                 <i class="{{ entry.icon }}"></i>
             {% endif %}
                 {{ entry.name }}
             </a>
+          {% if entry.has_submenus %}
+          <ul class="dropdown-menu">
+              {% for submenu in entry.get_submenus %}
+                  <li><a class="dropdown-item submenu-entry"
+                  help_text="{{ submenu.help_text }}"
+                  {% if submenu.target_url %}
+                          data-target-url="{{ submenu.target_url }}" href="#"
+                 {% else %}
+                          href="{{ submenu.url }}"
+                 {% endif %}
+                  {% if submenu.on_click %}
+                         on_click="{{ submenu.onclick }}"
+                 {% endif %}>
+                      {% if submenu.icon %}
+                      <i class="{{ submenu.icon }}"></i>
+                      {% endif %}
+                      {{ submenu.name }}
+                  </a></li>
+              {% endfor %}
+          </ul>
+
+          {% endif %}
           </li>
         {% endfor %}
 
@@ -54,7 +93,7 @@
 
   <!-- SIDEBARS & MAIN (horizontal layout) -->
   <div class="d-flex flex-grow-1" style="position: relative;">
-
+    {% if not DYNAMIC_DASHBOARD_SKIP_SIDEBARS %}
     <!-- First Sidebar -->
     <div id="mainSidebar" class="sidebar d-flex flex-column align-items-center">
       {% for entry in DYNAMIC_DASHBOARD_SIDE_MENU %}
@@ -112,6 +151,7 @@
     <button class="btn btn-outline-light" onclick="$('#secondSidebar').removeClass('open');">Close Sidebar</button>
     </div>
     </div>
+    {% endif %}
 
     <!-- Main content fills remaining space -->
   {% block DYNAMIC_DASHBOARD_PRE_BODY %}
