@@ -1,4 +1,7 @@
+from django.forms import model_to_dict
 from django.http import JsonResponse
+
+from minerve.toolkit.serialisers import filtered_serialiser, filtered_serialiser_many, model_metadata
 
 
 def paginator_json_response(_obj,page_size=20,form_values={}):
@@ -9,7 +12,8 @@ def paginator_json_response(_obj,page_size=20,form_values={}):
     @return: JSONResponse
     @rtype: JSONResponse
     """
-    return JsonResponse({"res": "ok", "paginator": {"total_pages": round(_obj.count() / page_size), "current_page": 1, "total_records": _obj.count()},"values":{"data":form_values}})
+    _,_,cols = model_metadata(_obj[0])
+    return JsonResponse({"res": "ok", "paginator": {"total_pages": round(_obj.count() / page_size), "current_page": 1, "total_records": _obj.count()},"columns":cols,"values":{"data":form_values}})
 
 
 def paginator_paginate_object(_obj,page=1,page_size=20):
@@ -43,3 +47,30 @@ def paginator_paginate_object(_obj,page=1,page_size=20):
     pobjs = objs[start:end]
 
     return pobjs,start,end,page,total_records,total_pages,paginator_range
+
+
+
+def paginator_paginate_and_serialise(_obj,page=1,page_size=20,filter_cols=[],relation_names={}):
+    """
+    Leverage the Paginator and Simple serialisers to create a one-liner interface suitable for use with AJAX/JSON requests,
+    such as with the TableApp SDK shipping with Minerve.
+    :param _obj: QuerySet of objects to paginate
+    :param page: Current page, default is 1.
+    :param page_size: Page size, default is 20
+    :param filter_cols: Filter columns array, default is none. - if specified, only return these cols.
+    :return: JSONResponse object containing paginator_table data.
+    """
+    pobjs,start,end,page,total_records,total_pages,paginator_range = paginator_paginate_object(_obj,page,page_size)
+    spobjs,vnames,htext = filtered_serialiser_many(pobjs,filter_cols,relation_names)
+
+    retrObj =  {
+        "paginator": {"total_pages": round(_obj.count() / page_size), "current_page": page, "total_records": _obj.count()},
+        "total_records":total_records,
+        "total_pages":total_pages,
+        "column_names":vnames,
+        "help_text":htext,
+        "start":start,
+        "end":end,
+        "rows":spobjs,
+        }
+    return JsonResponse({"res":"ok","type":"paginator_table","data":retrObj})

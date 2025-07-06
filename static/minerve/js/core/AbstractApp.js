@@ -32,20 +32,20 @@ export class AbstractApp {
         return errStr;
     }
     _confirm_and_get_ajax_url_handle(callback,data) {
-        this.hideLoading();
+        $(this).trigger("hideLoading");
         if (data.res == "ok") {
-            this.successToast("Complete!","Operation Complete!");
+            console.log("Complete!","Operation Complete!");
 
             if (callback != false) {
                 callback();
             }
         } else {
-            this.errorToast("Error!",data.error)
+            console.error("Error!",data.error)
         }
     }
     confirm_and_get_ajax_url(surl,callback,confirm_msg) {
         if  (confirm(confirm_msg)) {
-            this.showLoading();
+            $(this).trigger("showLoading");
             let url = this.urls["_api_prefix"]+surl;
             $.ajax({
                 url:   url,
@@ -57,7 +57,7 @@ export class AbstractApp {
 
     confirm_and_post_ajax_url(surl,post_form,confirm_msg,callback) {
         if  (confirm(confirm_msg)) {
-            this.showLoading();
+            $(this).trigger("showLoading");
             let url = this.urls["_api_prefix"]+surl;
             $.ajax({
                 url:  url,
@@ -119,24 +119,26 @@ export class AbstractApp {
     }
 
     _generic_apiget_handle(callback,data) {
-        this.hideLoading();
+        $(this).trigger("hideLoading");
+        // console.log(callback,data);
         if (data.res == "ok") {
             if (!("silent" in data))
             {
-                this.successToast("Complete!", "Operation Complete!");
+                $(this).trigger("success")
             }
             if (callback !== false) {
+
                 callback(data);
             }
         } else {
-            this.errorToast("Error!",data.error)
+            console.error("Error!",data.error)
         }
 
     }
 
     generic_api_getreq(url,data,callback=false,bind=true) {
-        this.showLoading();
-        url = this.urls["_api_prefix"] + url+"?d="+data;
+
+        url = this.urls["_api_prefix"] + url+"?"+data;
         if (bind === true) {
             callback = this._generic_apiget_handle.bind(this,callback)
         }

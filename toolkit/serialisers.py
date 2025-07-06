@@ -6,6 +6,8 @@ Toolkit utilities for [De]-Serialising Models.
 import hashlib
 from uuid import UUID
 
+from django.db.models import ForeignKey, ManyToOneRel, CharField
+from django.db.models.fields import DateTimeField, TimeField, DateField
 from django.forms import model_to_dict
 from django.http import JsonResponse
 
@@ -21,15 +23,19 @@ def model_metadata(model_instance,fields=[]):
     verbose_names = {}
     help_text = {}
     types = {}
+    columns = []
     for f in model_instance._meta.get_fields():
-        if f.name in fields or fields == []:
-            if hasattr(f, 'verbose_name'):
-                verbose_names[f.name] = f.verbose_name
-            if hasattr(f, 'help_text'):
-                if f.help_text != "":
-                    help_text[f.name] = f.help_text
-
-    return verbose_names, help_text
+        if (type(f)) == ManyToOneRel:
+            pass
+        else:
+            if f.name in fields or fields == []:
+                columns.append(f.name)
+                if hasattr(f, 'verbose_name'):
+                    verbose_names[f.name] = f.verbose_name
+                if hasattr(f, 'help_text'):
+                    if f.help_text != "":
+                        help_text[f.name] = f.help_text
+    return verbose_names, help_text, columns
 
 def simple_serialiser(model_instance,jsonify=False):
     """
@@ -38,11 +44,16 @@ def simple_serialiser(model_instance,jsonify=False):
     :param model_instance: p_model_instance: The Model instance to be serialised
     :returns: r:data, verbose_names,help_text.
     """
-    verbose_names, help_text = model_metadata(model_instance)
+    verbose_names, help_text, columns = model_metadata(model_instance)
     rdata = model_to_dict(model_instance)
-    for key in rdata:
-        if(type(rdata[key]) == UUID):
+    for key in columns:
+        if type(getattr(model_instance,key)) == ForeignKey:
+            name =  str(model_instance)
+            rdata[key] = {"value":str(rdata[key]),"name":name}
+        elif(type(rdata[key]) == UUID):
             rdata[key] = str(rdata[key])
+        else:
+            rdata[key] = rdata[key]
     if not jsonify:
         return rdata,verbose_names, help_text
     else:
@@ -63,12 +74,27 @@ def filtered_serialiser(model_instance,fields=[],jsonify=False):
     :param List: p_fields: The list of fields to fetch and serialise.
     :returns: r:data, verbose_names,help_text.
     """
-    verbose_names, help_text = model_metadata(model_instance,fields)
+    verbose_names, help_text, columns = model_metadata(model_instance,fields)
     rdata = {}
-    rdata = model_to_dict(model_instance,fields)
-    for key in rdata:
-        if(type(rdata[key]) == UUID):
-            rdata[key] = str(rdata[key])
+    for key in columns:
+        curr_val = getattr(model_instance, key)
+        # print(curr_val)
+        if model_instance._meta.get_field(key).is_relation:
+            if curr_val:
+                name = str(curr_val)
+                rdata[key] = {"value": str(curr_val.pk), "name": name}
+        elif type(curr_val) == UUID:
+            rdata[key] = str(curr_val)
+        elif type(model_instance._meta.get_field(key)) == CharField:
+            print(curr_val)
+            rdata[key] = curr_val
+            field = model_instance._meta.get_field(key)
+            # print(field.choices)
+            if field.choices:
+                rdata[key] = getattr(model_instance, f"get_{key}_display")()
+        else:
+            rdata[key] = curr_val
+
     if not jsonify:
         return rdata,verbose_names, help_text
     else:
@@ -81,7 +107,7 @@ def filtered_serialiser(model_instance,fields=[],jsonify=False):
             }, safe=False)
 
 
-def filtered_serialiser_many(queryset, fields=[]):
+def filtered_serialiser_many(queryset, fields=[],relation_names={}):
     """
     @brief SERIALISE a queryset and return a set of json-encodable objects suitable for AJAX/JSON requests.
            based on the field names passed.
@@ -90,11 +116,42 @@ def filtered_serialiser_many(queryset, fields=[]):
     :param List: p_fields: The list of fields to fetch and serialise.
     :returns: r:data, verbose_names,help_text.
     """
-    verbose_names, help_text = model_metadata(queryset[0], fields)
+    # print(fields)
+    # fields += ["created"]
+    verbose_names, help_text, columns = model_metadata(queryset[0], fields)
+    # print(columns)
     rdata = {}
     rows = []
     for row in queryset:
-        rdata = model_to_dict(row, fields)
+        for key in columns:
+            curr_val = getattr(row, key)
+            curr_field = row._meta.get_field(key)
+            # print(curr_val)
+            if row._meta.get_field(key).is_relation:
+                if curr_val:
+                    if key in relation_names:
+                        _name = getattr(curr_val, relation_names[key])
+                        if (callable(_name)):
+                            name = _name()
+                        else:
+                            name = str(_name)
+                    else:
+                        name = str(curr_val)
+                    rdata[key] = {"value": str(curr_val.pk), "name": name}
+            elif type(curr_val) == UUID:
+                rdata[key] = str(curr_val)
+            elif type(curr_field) == DateTimeField or type(curr_field) == DateField or type(curr_field) == TimeField:
+                rdata[key] = str(curr_val.strftime("%Y-%m-%d %H:%M:%S"))
+            elif type(curr_field) == CharField:
+                # print(curr_val)
+                rdata[key] = curr_val
+                # print(field.choices)
+                if curr_field.choices:
+                    rdata[key] = getattr(row,f"get_{key}_display")()
+            else:
+                rdata[key] = curr_val
+
+        # print(rdata)
         rows.append(rdata)
     return rows, verbose_names, help_text
 
