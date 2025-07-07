@@ -49,7 +49,6 @@ def paginator_paginate_object(_obj,page=1,page_size=20):
     return pobjs,start,end,page,total_records,total_pages,paginator_range
 
 
-
 def paginator_paginate_and_serialise(_obj,page=1,page_size=20,filter_cols=[],relation_names={}):
     """
     Leverage the Paginator and Simple serialisers to create a one-liner interface suitable for use with AJAX/JSON requests,

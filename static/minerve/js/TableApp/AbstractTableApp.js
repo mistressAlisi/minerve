@@ -4,7 +4,7 @@ import {AbstractApp} from "/static/minerve/js/core/AbstractApp.js";
 export class AbstractTableApp extends AbstractApp {
     settings = {
         "table_class":"table table-striped table-hover table-responsive",
-        "tr_class":"h6 text-primary",
+        "tr_class":"",
         "pagination_size":15,
         "navigation_pill_count_box_break":10,
         "navigation_display_count":true,
@@ -25,6 +25,12 @@ export class AbstractTableApp extends AbstractApp {
         "ready":"<i class=\"fa-regular fa-signal-stream\"></i> Ready!",
         "loading":"<i class=\"fa-solid fa-spinner fa-spin-pulse text-primary\"></i> Loading...",
         "error":"<i class=\"fa-duotone fa-solid fa-circle-exclamation text-red\"></i> Error!",
+        "sort_by":"<i class=\"fa-duotone fa-solid fa-sort\"></i> Sort by:",
+        "sort_none":"<i class=\"fa-duotone fa-solid fa-circle-0\"></i> None",
+        "sort_asc":"<i class=\"fa-duotone fa-solid fa-up-to-dotted-line\"></i> Ascending",
+        "sort_desc":"<i class=\"fa-duotone fa-solid fa-down-to-dotted-line\"></i> Descending",
+        "search":"<i class=\"fa-duotone fa-solid fa-radar\"></i> Search",
+        "go_search":"<i class=\"fa-duotone fa-solid fa-magnifying-glass\"></i>"
 
     }
     navigation = {
@@ -33,6 +39,12 @@ export class AbstractTableApp extends AbstractApp {
         "next": false,
         "box": false,
         "buttons": {}
+    }
+    sorters = {
+
+    }
+    searchers = {
+
     }
     display_cols = []
     col_names = {}
@@ -48,6 +60,7 @@ export class AbstractTableApp extends AbstractApp {
     body = false
     footer = false
     footer_div = false
+    header_set = false
     dom_factory() {
         let dom_el = $("<"+this.tag+"/>",this.props);
         return dom_el;
@@ -98,13 +111,100 @@ export class AbstractTableApp extends AbstractApp {
         this.props = {}
         let tr = this.dom_factory();
         this.header.append(tr[0])
-        this.tag = "td"
+
         for (let key in columns) {
-            this.props = {"html": columns[key],"id":"col_"+key,"class":this.settings["tr_class"]}
+            this.tag = "td"
+            this.props = {"id":"col_"+key,"class":this.settings["tr_class"]}
             let td = this.dom_factory();
             tr[0].append(td[0])
+            this.tag = "div"
+            this.props = {"class":"dropdown"}
+            let drpdn = this.dom_factory()
+            this.tag = "a"
+            this.props = {"class":"dropdown-toggle dropdown-toggle-split","href":"#","data-bs-toggle":"dropdown","data-bs-auto-close":"outside","role":"button","text":columns[key]}
+            let a = this.dom_factory()
+            drpdn[0].append(a[0])
+            this.tag = "ul"
+            this.props = {"class":"dropdown-menu"}
+            let ul = this.dom_factory()
+            drpdn[0].append(ul[0])
+            this.tag = "li"
+            this.props = {"class":"dropdown-item"}
+            let li = this.dom_factory()
+            this.tag = "a"
+            this.props = {"class":"dropdown-item","html":this.texts["sort_by"]+" "+this.texts["sort_none"],"href":"#"}
+            this.sorters[key] = this.dom_factory()
+            this.sorters[key].on("click", this._handle_sort_event.bind(this))
+            this.sorters[key].data("sort_target",columns[key]);
+            this.sorters[key].data("sort_key",key);
+            this.sorters[key].data("sort_mode","none");
+            li[0].append(this.sorters[key][0])
+            ul[0].append(li[0])
+            this.tag = "li"
+            this.props = {"class":"dropdown-item mb-3 p-2 input-group"}
+            let li2 = this.dom_factory()
+            this.tag = "label"
+            this.props = {"class":"form_label","html":this.texts["search"]}
+            let label = this.dom_factory()
+            li2[0].append(label[0])
+            this.tag = "div"
+            this.props = {"class":"input-group mb-3"}
+            let div = this.dom_factory()
+            this.tag = "input"
+            this.props = {"class":"form-control p-1","type":"text"}
+            this.searchers[key] = this.dom_factory()
+            div[0].append(this.searchers[key][0])
+            this.tag = "button"
+            this.props = {"class":"btn btn-sm btn-primary btn-sm","html":this.texts["go_search"]}
+            let btn = this.dom_factory()
+            div[0].append(btn[0])
+            li2[0].append(div[0])
+
+            ul[0].append(li2[0])
+            td.append(drpdn[0])
         }
         this.col_names = columns;
+    }
+
+    _handle_sort_event(event) {
+        event.preventDefault()
+        event.stopPropagation()
+        let trgt = $(event.target)
+        let key = trgt.data("sort_key")
+        let col = trgt.data("sort_target")
+        let srt = trgt.data("sort_mode")
+        switch (srt) {
+            case "none":
+                trgt.data("sort_mode","ASC")
+                trgt.html(this.texts["sort_by"]+" "+this.texts["sort_asc"])
+            break;
+            case "ASC":
+                trgt.data("sort_mode","DESC")
+                trgt.html(this.texts["sort_by"]+" "+this.texts["sort_desc"])
+            break;
+            case "DESC":
+                trgt.data("sort_mode","none")
+                trgt.html(this.texts["sort_by"]+" "+this.texts["sort_none"])
+            break;
+
+        }
+        this.load(this.current_page)
+        // console.log(trgt,col,key,srt)
+    }
+
+    _build_sort_qrystring() {
+        let srt = "&srt="
+        for (let key in this.sorters) {
+            let trgt = $(this.sorters[key])
+            let col = trgt.data("sort_target")
+            let mode = trgt.data("sort_mode")
+            if (mode == "ASC") {
+                srt = srt + col+";"
+            } else if (mode == "DESC") {
+                srt = srt + "-"+col+";"
+            }
+        }
+        return srt.slice(0,-1)
     }
 
     _set_navigation(parent) {
@@ -239,7 +339,7 @@ export class AbstractTableApp extends AbstractApp {
             this.tag = "div"
             this.props = {"class":"progress col-2","role":"progressbar","aria-label":"Table row record progress","aria-valuenow":this.current_page*this.settings["pagination_size"],"aria-valuemin":0,"aria-valuemax":this.total_records}
             this.navigation.display_pbar = this.dom_factory()
-            this.props = {"class":"progress-bar progress-bar-striped progress-bar-animated progress-bar-success","style":"width: 50%"}
+            this.props = {"class":"progress-bar progress-bar-striped progress-bar-success","style":"width: 50%"}
             this.navigation.display_pbar_bar = this.dom_factory()
             this.navigation.display_pbar[0].append(this.navigation.display_pbar_bar[0])
             nav_box[0].append(this.navigation.display_pbar[0])
@@ -288,7 +388,8 @@ export class AbstractTableApp extends AbstractApp {
     }
 
     _load_handle(res) {
-        if (res.data.paginator.current_page == 1) {
+        if ((res.data.paginator.current_page == 1)&&(this.header_set === false)) {
+            this.header_set = true;
             this.header.empty()
             this._set_header(Object.values(res.data.column_names))
         }
@@ -412,7 +513,7 @@ export class AbstractTableApp extends AbstractApp {
         }
         console.log("Loading Page: "+page);
         this._set_status(this.texts["loading"])
-        this.generic_api_getreq(this.urls["paginator_endpoint"]+this.settings["pagination_size"]+"/"+page,"cols="+cols,this._load_handle.bind(this));
+        this.generic_api_getreq(this.urls["paginator_endpoint"]+this.settings["pagination_size"]+"/"+page,"cols="+cols+this._build_sort_qrystring(),this._load_handle.bind(this));
     }
 
 
