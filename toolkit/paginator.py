@@ -61,12 +61,13 @@ def paginator_paginate_and_serialise(_obj,page=1,page_size=20,filter_cols=[],rel
     """
     pobjs,start,end,page,total_records,total_pages,paginator_range = paginator_paginate_object(_obj,page,page_size)
     spobjs,vnames,htext = filtered_serialiser_many(pobjs,filter_cols,relation_names)
-
+    _,_,cols = model_metadata(_obj[0])
     retrObj =  {
         "paginator": {"total_pages": round(_obj.count() / page_size), "current_page": page, "total_records": _obj.count()},
         "total_records":total_records,
         "total_pages":total_pages,
         "column_names":vnames,
+        "columns": cols,
         "help_text":htext,
         "start":start,
         "end":end,

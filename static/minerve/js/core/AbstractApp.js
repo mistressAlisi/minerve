@@ -5,6 +5,7 @@ export class AbstractApp {
             "_prefix":"/"
         }
         elements = {}
+    _last_ajax_url = false;
     _parent_walker(parent,target_node) {
        if (target_node == undefined) { target_node = "DIV"};
        while (parent.nodeName != target_node) {
@@ -135,20 +136,30 @@ export class AbstractApp {
         }
 
     }
-
+    _generic_handle_ajax_error(request,status,error) {
+            // console.log(request.get("URL"));
+            if (request.status == "404") {
+                console.warn("Abstract App Ajax: 404/Path not Found:",this._last_ajax_url);
+            } else if (request.status == "500") {
+                console.error("Abstract App Ajax: 500/Internal Server Error:",this._last_ajax_url);
+            }
+            $(this).trigger("ajax_error", {"status":request.status,"path":this._last_ajax_url});
+    }
     generic_api_getreq(url,data,callback=false,bind=true) {
 
         url = this.urls["_api_prefix"] + url+"?"+data;
         if (bind === true) {
             callback = this._generic_apiget_handle.bind(this,callback)
         }
+        this._last_ajax_url = url;
         $.ajax({
             url:  url,
             method: 'GET',
             context: this,
             cache: false,
             contentType: false,
-            processData: false
+            processData: false,
+            error: this._generic_handle_ajax_error.bind(this)
             }).done(callback);
     }
 

@@ -10,11 +10,11 @@ export class AbstractTableApp extends AbstractApp {
         "navigation_display_count":true,
         "navigation_display_status":true,
         "navigation_display_pbar":true,
-        "display_cols": ["uuid","created","account","match","status","risk","win"]
+        "display_cols": []
     }
     urls = {
         "_api_prefix":"/api/v1/",
-        "paginator_endpoint":"agent/wagers/reports/paginator/"
+        "paginator_endpoint":"change/me"
     }
     texts =  {
         "navigation_aria": "Table Navigation Range",
@@ -30,7 +30,8 @@ export class AbstractTableApp extends AbstractApp {
         "sort_asc":"<i class=\"fa-duotone fa-solid fa-up-to-dotted-line\"></i> Ascending",
         "sort_desc":"<i class=\"fa-duotone fa-solid fa-down-to-dotted-line\"></i> Descending",
         "search":"<i class=\"fa-duotone fa-solid fa-radar\"></i> Search",
-        "go_search":"<i class=\"fa-duotone fa-solid fa-magnifying-glass\"></i>"
+        "go_search":"<i class=\"fa-duotone fa-solid fa-magnifying-glass\"></i>",
+        "all_records":"Viewing all records."
 
     }
     navigation = {
@@ -309,6 +310,11 @@ export class AbstractTableApp extends AbstractApp {
             $(this.navigation.status_display).html(text);
         }
     }
+    _set_display_count_html(nhtml) {
+        if (this.navigation.display_count) {
+            this.navigation.display_count.html(nhtml);
+        }
+    }
     _set_display_count(page) {
         if (this.navigation.display_count) {
             let ntext = this.texts["viewing"]+" "+page*this.settings["pagination_size"]+"/"+this.total_records+" "+this.texts["records"]
@@ -359,7 +365,7 @@ export class AbstractTableApp extends AbstractApp {
         event.preventDefault()
         event.stopPropagation()
         let btn = $(event.target);
-        console.warn(btn,btn[0].value);
+        // console.warn(btn,btn[0].value);
         if (btn[0].getAttribute("disabled") == "disabled") {
             return false;
         }
@@ -369,7 +375,7 @@ export class AbstractTableApp extends AbstractApp {
         } else {
             trgt = btn.data("page");
         }
-        if (trgt >= this.total_pages) {
+        if (trgt >= this.total_pages+1) {
             console.warn("Exceeding total pages is prohibited.")
             btn[0].value = this.total_pages;
             trgt = this.total_pages;
@@ -400,6 +406,7 @@ export class AbstractTableApp extends AbstractApp {
         this.navigation.container.find("btn").removeClass('disabled');
         this.navigation.container.find("btn").attr('disabled',false);
         this.current_page = res.data.paginator.current_page;
+        if (this.total_pages > 1) {
         // Simple Pill based navigation below:
         if (this.total_pages < this.settings["navigation_pill_count_box_break"]) {
         this.navigation.buttons[this.current_page].attr("disabled","disabled");
@@ -499,11 +506,23 @@ export class AbstractTableApp extends AbstractApp {
                 btn6.text(this.current_page+3);
                 btn6.data("page",this.current_page+3);
             }
+        }
             this._set_display_count(this.current_page);
-            this._set_status(this.texts["ready"])
-
+        } else {
+            this._set_display_count_html(this.texts["all_records"])
+            if (this.navigation.display_pbar_bar) {
+                this.navigation.display_pbar.hide();
+            }
         }
 
+        this._set_status(this.texts["ready"])
+
+    }
+
+    _ajax_error_handler(event,data) {
+        if ("status" in data) {
+            alert("Abstract Table App: AJAX Layer Error: " + data.status+"\nURL: " + this._last_ajax_url);
+        }
     }
 
     load(page=1) {
@@ -520,10 +539,10 @@ export class AbstractTableApp extends AbstractApp {
     _start_handle(res) {
         // console.log("Table Data",data.paginator);
         // console.log(data);
-        this.total_records = res.paginator.total_records;
-        this.current_page = res.paginator.current_page;
-        this.total_pages = res.paginator.total_pages;
-        this.columns = res.columns;
+        this.total_records = res.data.paginator.total_records;
+        this.current_page = res.data.paginator.current_page;
+        this.total_pages = res.data.paginator.total_pages;
+        this.columns = res.data.columns;
         console.log("Initalised a Table with "+this.total_records+" records across "+this.total_pages+" total pages of "+this.settings["pagination_size"]+" rows each.");
         // if (this.total_pages > 1) {
         this._set_footer()
@@ -534,13 +553,14 @@ export class AbstractTableApp extends AbstractApp {
     }
 
     start() {
-        this.generic_api_getreq(this.urls["paginator_endpoint"],false,this._start_handle.bind(this));
+        this.generic_api_getreq(this.urls["paginator_endpoint"]+this.settings["pagination_size"],false,this._start_handle.bind(this));
     }
     constructor(settings, urls, texts) {
         super(settings, urls);
         $.extend(this.settings, settings);
         $.extend(this.urls, urls);
         $.extend(this.texts, texts);
+        $(this).on("ajax_error", this._ajax_error_handler.bind(this));
         this.display_cols = this.settings["display_cols"];
         this.tag = "div"
         this.props = {};
