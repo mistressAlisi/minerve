@@ -14,6 +14,9 @@ export class ElementInput extends _elementProto {
         /** Build the container first: **/
         this.tag = "div"
         this.props = {"class": "mb-3"}
+        if ("container_class" in props) {
+            this.props["class"] = this.props["class"]+" "+props["container_class"];
+        }
         this.container = this.dom_factory();
 
         /** Now the label: **/
@@ -40,6 +43,9 @@ export class ElementInput extends _elementProto {
         }
 
         $.extend(this.props, props);
+        if ("input_class" in props) {
+            this.props["class"] = this.props["class"] + " " + props["input_class"]
+        }
         this.input = this.dom_factory();
         this.container.append(this.input);
         this.tag = "div"
