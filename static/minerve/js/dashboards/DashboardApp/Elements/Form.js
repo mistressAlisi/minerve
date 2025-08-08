@@ -2,7 +2,8 @@ import {_elementProto} from "./prototype.js";
 
 export class ElementForm extends _elementProto {
 
-    constructor({post_url,method="POST",target="#",on_submit=false,on_change=false,...rest}) {
+    constructor(post_url,method="POST",target="#",on_submit=false,on_change=false,...rest) {
+        console.warn(post_url,method,rest);
         super();
         this.tag = "form";
         this.props = {
@@ -11,7 +12,7 @@ export class ElementForm extends _elementProto {
             "target": target,
         }
 
-
+        console.log(this.props);
         this.dom_el = this.dom_factory();
         if ("intro_str" in rest) {
             this.intro_str = $("<div>", {class: "p", html: rest.intro_str});

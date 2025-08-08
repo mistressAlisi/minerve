@@ -14,7 +14,8 @@ export class Modal {
         return this.modalDiv;
     }
 
-    constructor({title_str, max_width, dismissable = true, css_class = false,...rest}) {
+    constructor(title_str, max_width, dismissable = true, css_class = false,...rest) {
+        // console.warn(title_str, max_width, dismissable, css_class);
         this.modalId = Math.floor(Date.now() / 1000);
         this.modalDiv = $("<div>", {class: "modal", id: this.modalId});
         if (css_class !== false) {

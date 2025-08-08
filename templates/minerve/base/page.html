@@ -74,7 +74,8 @@
     <button class="btn btn-outline-light d-md-none me-2" id="toggleSidebarBtn" type="button">
       <i class="bi bi-list"></i>
     </button>
-      <a class="navbar-brand d-flex align-items-center" href="/">
+      {% block MINERVE_PAGE_NAV_BRAND %}
+          <a class="navbar-brand d-flex align-items-center" href="/">
       {% if vdomain.website_icon %}
             <img src="{{ vdomain.website_icon.url }}" alt="icon" width="40" height="40" class="me-2">
       {% elif vhost.website_icon %}
@@ -83,7 +84,9 @@
       {% if vdomain.show_website_name %}
         <span class="d-none d-md-inline">{{ vdomain.website_name }}</span>
       {% endif %}
+
       </a>
+      {% endblock %}
       {% block MINERVE_NAV_PAGE_NAME %}
           {# replace this block to add a unique page name in the dashboard. #}
       {% endblock %}
@@ -106,7 +109,7 @@
         </ul>
       </div>
 
-      <div class="d-flex">
+      <div class="">
       {% block MINERVE_NAV_LOGIN_AREA %}
         <button class="btn btn-outline-primary me-2">Login</button>
         <button class="btn btn-primary">Sign Up</button>
