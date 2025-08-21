@@ -1,4 +1,5 @@
 import {AbstractApp} from "/static/minerve/js/core/AbstractApp.js";
+import {ElementA} from "/static/minerve/js/dashboards/DashboardApp/Elements/A.js";
 
 
 export class AbstractTableApp extends AbstractApp {
@@ -73,7 +74,8 @@ export class AbstractTableApp extends AbstractApp {
         return this.dom_con;
     }
 
-    _add_row(data) {
+    _add_row(data,additional_cols=false) {
+
         this.tag = "tr"
         this.props = {}
         let row_data = {
@@ -81,25 +83,49 @@ export class AbstractTableApp extends AbstractApp {
             "tds":[]
         }
         this.tag = "td"
+        let pk = ''
         for (let key in data) {
-            switch (typeof(data[key])) {
-                case "object":
-                    this.props = {
-                        "html":data[key].name,
-                        "id":"td_"+key,
-                        "data_id":data[key].id,
+            if (key === "__pk") {
+                pk = data[key]
+            } else {
+                switch (typeof (data[key])) {
+                    case "object":
+                        this.props = {
+                            "html": data[key].name,
+                            "id": "td_" + key,
+                            "data_id": data[key].id,
                         }
-                break;
-                default:
-                    this.props = {
-                        "html":data[key],
-                        "id":"td_"+key
+                        break;
+                    default:
+                        this.props = {
+                            "html": data[key],
+                            "id": "td_" + key
                         }
-                break;
+                        break;
+                }
+                let td = this.dom_factory()
+                row_data["tds"].push(td)
+                row_data["tr"][0].append(td[0])
             }
-            let td = this.dom_factory()
-            row_data["tds"].push(td)
-            row_data["tr"][0].append(td[0])
+        }
+        if (additional_cols !== false) {
+            for (let key in additional_cols) {
+                let element = false
+                let addcol = additional_cols[key]
+                // Additional column feature support being initated here:
+                // First type: Modal Link!
+                if (addcol["type"] === "modal_view") {
+                    element = new ElementA("#", addcol["text"], {"onclick": addcol["onclick"] + "('" + pk + "');"})
+                }
+                console.log(element);
+                if (element !== false) {
+                    this.props = {"id": "td_" + key}
+                    let td = this.dom_factory()
+                    td[0].append(element.get_el()[0])
+                    row_data["tds"].push(td)
+                    row_data["tr"][0].append(td[0])
+                }
+            }
         }
         this.row_data.push(row_data)
         this.body[0].append(row_data["tr"][0])
@@ -401,7 +427,7 @@ export class AbstractTableApp extends AbstractApp {
         }
         this.body.empty()
         for (let key in res.data.rows) {
-            this._add_row(res.data.rows[key]);
+            this._add_row(res.data.rows[key],res.data.additional_cols);
         }
         this.navigation.container.find("btn").removeClass('disabled');
         this.navigation.container.find("btn").attr('disabled',false);

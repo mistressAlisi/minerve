@@ -43,7 +43,7 @@
     <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
 
   </head>
-  <body class="h-100 w-100 d-flex text-center" {% if MINERVE_BODY_THEME %} {% endif %}>
+  <body class="h-100 w-100 d-flex text-center" {% if MINERVE_BODY_THEME %} data-bs-theme="{{ MINERVE_BODY_THEME }}"{% endif %}>
       <!-- custom body Scripts !-->
     {%  for js in MINERVE_PAGE_JS %}
     <script src='{{ js }}'></script>

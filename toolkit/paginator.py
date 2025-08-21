@@ -45,11 +45,11 @@ def paginator_paginate_object(_obj,page=1,page_size=20):
         start = 0
     end = start + page_size
     pobjs = objs[start:end]
-
+    # print(objs,pobjs,start,end,page,total_records,total_pages,paginator_range)
     return pobjs,start,end,page,total_records,total_pages,paginator_range
 
 
-def paginator_paginate_and_serialise(_obj,page=1,page_size=20,filter_cols=[],relation_names={}):
+def paginator_paginate_and_serialise(_obj,page=1,page_size=20,filter_cols=[],relation_names={},**kwargs):
     """
     Leverage the Paginator and Simple serialisers to create a one-liner interface suitable for use with AJAX/JSON requests,
     such as with the TableApp SDK shipping with Minerve.
@@ -59,8 +59,13 @@ def paginator_paginate_and_serialise(_obj,page=1,page_size=20,filter_cols=[],rel
     :param filter_cols: Filter columns array, default is none. - if specified, only return these cols.
     :return: JSONResponse object containing paginator_table data.
     """
+
     pobjs,start,end,page,total_records,total_pages,paginator_range = paginator_paginate_object(_obj,page,page_size)
+    # print(pobjs)
+    # print("Right before FSM")
     spobjs,vnames,htext = filtered_serialiser_many(pobjs,filter_cols,relation_names)
+    if "additional_col_names" in kwargs:
+        vnames.update(kwargs["additional_col_names"])
     _,_,cols = model_metadata(_obj[0])
     retrObj =  {
         "paginator": {"total_pages": round(_obj.count() / page_size), "current_page": page, "total_records": _obj.count()},
@@ -73,4 +78,6 @@ def paginator_paginate_and_serialise(_obj,page=1,page_size=20,filter_cols=[],rel
         "end":end,
         "rows":spobjs,
         }
+    if "additional_cols" in kwargs:
+        retrObj["additional_cols"] = kwargs["additional_cols"]
     return JsonResponse({"res":"ok","type":"paginator_table","data":retrObj})

@@ -21,6 +21,33 @@ export class    AbstractDashboardApp extends AbstractApp {
     last_modal_created = false
     last_modal_created_bso = false
 
+
+    _animateCSS(node, animation, prefix = 'animate__') {
+        // We create a Promise and return it
+        new Promise((resolve, reject) => {
+            const animationName = `${prefix}${animation}`;
+            //     const node = document.querySelector(element);
+
+            node.addClass(`${prefix}animated  ${animationName}`);
+
+            // When the animation ends, we clean the classes and resolve the Promise
+            function handleAnimationEnd(event) {
+
+                event.stopPropagation();
+                node.removeClass(`${prefix}animated ${animationName}`);
+                resolve('Animation ended');
+            }
+
+            node.on('animationend', handleAnimationEnd);
+        });
+    }
+
+    _isMobile() {
+        let isMobile = window.orientation > -1;
+        return isMobile;
+    }
+
+
     _getModal() {
         this.modal = new bootstrap.Modal(this.elements["modal"]);
     }
@@ -331,7 +358,7 @@ export class    AbstractDashboardApp extends AbstractApp {
 
     }
 
-    generic_ajax_modal_dialogue(title, url, add_prefix = false, max_width = "75%", dismissable = true, load_callback = false, modal_css_class = false, destroy_old_modal = false) {
+    generic_ajax_modal_dialogue(title, url, add_prefix = true, max_width = "75%", dismissable = true, load_callback = false, modal_css_class = false, destroy_old_modal = false) {
         if (destroy_old_modal === true) {
             if (this.last_modal_created !== false) {
                 if (this.last_modal_created.modalDiv !== undefined) {
@@ -345,10 +372,10 @@ export class    AbstractDashboardApp extends AbstractApp {
             "dismissable":dismissable,
             "modal_css_class":modal_css_class
         }
-        let modal = new Modal(options);
-        if (url != false) {
+        let modal = new Modal(title,max_width,dismissable,modal_css_class);
+        if (url !== false) {
             let turl = url;
-            if (add_prefix === true) {
+            if (add_prefix===true) {
                 turl = this.urls["_prefix"] + turl;
             }
             this.showLoading();

@@ -120,9 +120,9 @@ def filtered_serialiser_many(queryset, fields=[],relation_names={}):
     # fields += ["created"]
     verbose_names, help_text, columns = model_metadata(queryset[0], fields)
     # print(columns)
-    rdata = {}
     rows = []
     for row in queryset:
+        rdata = {}
         for key in columns:
             curr_val = getattr(row, key)
             curr_field = row._meta.get_field(key)
@@ -150,8 +150,9 @@ def filtered_serialiser_many(queryset, fields=[],relation_names={}):
                     rdata[key] = getattr(row,f"get_{key}_display")()
             else:
                 rdata[key] = curr_val
+        rdata["__pk"] = row.pk
 
-        # print(rdata)
+
         rows.append(rdata)
     return rows, verbose_names, help_text
 

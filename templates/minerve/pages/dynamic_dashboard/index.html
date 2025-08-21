@@ -14,13 +14,15 @@
       crossorigin="anonymous"
       referrerpolicy="no-referrer"
     ></script>
+    <!-- Animate.css -->
+      <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
+  />
   <!-- Top Navbar -->
   <nav class="navbar navbar-expand-lg navbar-dark fixed-top border-bottom">
       <div class="container-fluid">
-    <!-- Mobile Sidebar Toggle -->
-    <button class="btn btn-outline-light d-md-none me-2" id="toggleSidebarBtn" type="button">
-      <i class="bi bi-list"></i>
-    </button>
+
       <a class="navbar-brand d-flex align-items-center" href="/">
       {% if vdomain.website_icon %}
             <img src="{{ vdomain.website_icon.url }}" alt="icon" width="40" height="40" class="me-2">
@@ -28,14 +30,19 @@
           <img src="{{ vhost.website_icon.url }}" alt="icon" width="40" height="40" class="me-2">
       {% endif %}
       {% if vdomain.show_website_name %}
-        <span class="d-none d-md-inline">{{ vdomain.website_name }}</span>
+        <span class="d-none d-md-none">{{ vdomain.website_name }}</span>
       {% endif %}
       </a>
+
       {% block MINERVE_NAV_PAGE_NAME %}
 
       {% endblock %}
-      <div class="collapse navbar-collapse justify-content-center">
-        <ul class="navbar-nav mb-2 mb-lg-0">
+
+
+      <div class="collapse navbar-collapse justify-content-center" id="dashboardNavbar">
+        <ul class="navbar-nav mb-2 mb-lg-0 ">
+        {% block DYNAMIC_DASHBOARD_TOP_MENU_ULTOP %}
+        {% endblock %}
         {% for entry in DYNAMIC_DASHBOARD_TOP_MENU %}
 
             <li class="nav-item {% if entry.has_submenus %}dropdown{% endif %}">
@@ -69,22 +76,29 @@
                       {{ submenu.name }}
                   </a></li>
               {% endfor %}
+
           </ul>
 
           {% endif %}
           </li>
         {% endfor %}
-
+        {% block DYNAMIC_DASHBOARD_TOP_MENU_ULBOT %}
+        {% endblock %}
         </ul>
-      </div>
 
-      <div class="d-flex">
+      </div>
+    <!-- Mobile Sidebar Toggle -->
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#dashboardNavbar" aria-controls="dashboardNavbar" aria-expanded="false" aria-label="Toggle navigation">
+      <i class="bi bi-list"></i>
+    </button>
+      <div class="d-lg-flex d-md-flex d-xl-flex d-xxl-flex d-none">
       {% block MINERVE_NAV_LOGIN_AREA %}
         <button class="btn btn-outline-primary me-2">Login</button>
         <button class="btn btn-primary">Sign Up</button>
       {% endblock %}
       </div>
     </div>
+
   </nav>
 {% endblock %}
 {% block MINERVE_PAGE_BODY %}
@@ -110,10 +124,11 @@
       {% endfor %}
 
       <div class="flex-grow-1"></div>
-
+    {% if not MINERVE_DISABLE_PROFILE_ENTRY %}
       <div class="bottom-icon mb-3">
         <a href="#" title="Account" onclick="toggleSecondSidebar('account');"><i class="bi bi-person-circle"></i></a>
       </div>
+    {% endif %}
     </div>
 
     <!-- Second Sidebar -->
@@ -156,17 +171,19 @@
     <!-- Main content fills remaining space -->
   {% block DYNAMIC_DASHBOARD_PRE_BODY %}
   {% endblock %}
-    <main class="content flex-grow-1 d-flex flex-column pb-4 px-1" id="main-content">
+    <main class="content flex-grow-1 d-flex pb-4 px-1" id="main-content">
       {% block DYNAMIC_DASHBOARD_BODY %}
-        <div class="flex-grow-1 d-flex flex-column justify-content-center align-items-center text-center">
+        <div class=" justify-content-center align-items-center text-center">
           <h1>Main Content Area</h1>
           <p class="lead">Replace the DYNAMIC_DASHBOARD_BODY block to put content here.</p>
         </div>
       {% endblock %}
     </main>
-
   </div>
+
 </div>
+  {% block DYNAMIC_DASHBOARD_BODY_FOOTER %}
+  {% endblock %}
 <script>
   // Open second sidebar and show correct submenu
   function toggleSecondSidebar(index) {
