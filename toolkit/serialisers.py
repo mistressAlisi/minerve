@@ -137,7 +137,14 @@ def filtered_serialiser_many(queryset, fields=[],relation_names={}):
                             name = str(_name)
                     else:
                         name = str(curr_val)
-                    rdata[key] = {"value": str(curr_val.pk), "name": name}
+                    if (hasattr(curr_val,"all")):
+                        pks = []
+                        for pk in curr_val.all():
+                            pks.append(str(pk.pk))
+                        rdata[key] = {"values": pks, "name": name}
+
+                    else:
+                        rdata[key] = {"value": str(curr_val.pk), "name": name}
             elif type(curr_val) == UUID:
                 rdata[key] = str(curr_val)
             elif type(curr_field) == DateTimeField or type(curr_field) == DateField or type(curr_field) == TimeField:

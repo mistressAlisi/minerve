@@ -93,19 +93,49 @@ export class AbstractApp {
         $(this.elements["form"]).find("input").removeClass('is-invalid');
         $(this.elements["form"]).find("select").removeClass('is-invalid');
     }
+
     generic_post_form(event,modal=false,callback=false) {
-        event.preventDefault();
-        event.stopPropagation();
-        let form = $(event.target);
-        let url = form.data("post-url");
-        if (form.data("post-prefix") !== false) {
-            url = this.urls["_api_prefix"] + url;
+        this.generic_post_form_v2({"event": event, "callback": callback,"modal": modal});
+    }
+
+    generic_post_form_v2({...kwargs}) {
+        let form = false
+        let url = false
+        let modal = false
+        let callback = false
+        if ("event" in kwargs) {
+            let event = kwargs["event"];
+            event.preventDefault();
+            event.stopPropagation();
+            form = $(event.target);
+        } else if ("form" in kwargs) {
+            form = kwargs["form"]
+        }
+        if ("url" in kwargs) {
+            if ("skip_prefix" in kwargs) {
+                 url = kwargs["url"];
+            } else {
+                 url = this.urls["_api_prefix"] + kwargs["url"];
+            }
+        } else {
+             url = form.data("post-url");
+            if (form.data("post-prefix") !== false) {
+                url = this.urls["_api_prefix"] + url;
+            }
+        }
+        if ("modal" in kwargs) {
+             modal = kwargs["modal"];
+        }
+        if ("callback" in kwargs) {
+             callback = kwargs["callback"];
         }
         this.elements["form"] = $(form);
         this._clear_invalid()
-        try {
-            this.elements["modal"] = $(this.settings["modal_id"]);
-        } catch (e) {}
+        if (("skip_modal" in kwargs) === false) {
+            try {
+                this.elements["modal"] = $(this.settings["modal_id"]);
+            } catch (e) {}
+        }
         $.ajax({
             url:  url,
             method: 'POST',
@@ -118,6 +148,7 @@ export class AbstractApp {
             }).done(this.generic_post_form_handle.bind(this,modal,callback));
 
     }
+
 
     _generic_apiget_handle(callback,data) {
         $(this).trigger("hideLoading");
