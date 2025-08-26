@@ -117,7 +117,7 @@ export class AbstractTableApp extends AbstractApp {
                 if (addcol["type"] === "modal_view") {
                     element = new ElementA("#", addcol["text"], {"onclick": addcol["onclick"] + "('" + pk + "');"})
                 }
-                console.log(element);
+                // console.log(element);
                 if (element !== false) {
                     this.props = {"id": "td_" + key}
                     let td = this.dom_factory()
