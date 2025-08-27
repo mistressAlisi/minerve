@@ -13,3 +13,4 @@ export class ElementP extends _elementProto {
 
     }
 }
+export default ElementP;

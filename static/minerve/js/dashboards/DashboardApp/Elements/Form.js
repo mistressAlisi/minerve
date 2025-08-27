@@ -27,3 +27,4 @@ export class ElementForm extends _elementProto {
 
     }
 }
+export default ElementForm;

@@ -69,3 +69,4 @@ export class ElementInput extends _elementProto {
 
     }
 }
+export default ElementInput;

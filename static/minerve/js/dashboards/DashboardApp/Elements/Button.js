@@ -13,3 +13,4 @@ export class ElementButton extends _elementProto {
 
     }
 }
+export default ElementButton;

@@ -16,3 +16,4 @@ export class ElementHiddenInput extends _elementProto {
 
     }
 }
+export default ElementHiddenInput;

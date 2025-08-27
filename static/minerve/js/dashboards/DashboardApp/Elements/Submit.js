@@ -15,3 +15,4 @@ export class ElementSubmit extends _elementProto {
 
     }
 }
+export default ElementSubmit;

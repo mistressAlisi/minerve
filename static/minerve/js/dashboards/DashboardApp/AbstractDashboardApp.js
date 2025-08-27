@@ -20,7 +20,7 @@ export class    AbstractDashboardApp extends AbstractApp {
     last_modal = false
     last_modal_created = false
     last_modal_created_bso = false
-
+    on_ajax_error_func = false
 
     _animateCSS(node, animation, prefix = 'animate__') {
         // We create a Promise and return it
@@ -421,6 +421,10 @@ export class    AbstractDashboardApp extends AbstractApp {
             } catch (e) {
                 console.warn("Unable to Parse data inside _parse_ajax_error:",e)
                 this.errorToast(hdr, res.err);
+            }
+            if (this.on_ajax_error_func) {
+                console.warn(this.on_ajax_error_func);
+                this.on_ajax_error_func(res);
             }
         }
     }

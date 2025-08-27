@@ -118,7 +118,8 @@
            {% else %}
               href="{{ entry.url }}"
            {% endif %}
-           title="{{ entry.name }}">
+           title="{{ entry.name }}"
+           data-bs-placement="right" data-bs-title="{{ entry.name }}" data-bs-toggle="tooltip">
           <i class="{{ entry.icon }}"></i>
         </a>
       {% endfor %}
@@ -126,7 +127,7 @@
       <div class="flex-grow-1"></div>
     {% if not MINERVE_DISABLE_PROFILE_ENTRY %}
       <div class="bottom-icon mb-3">
-        <a href="#" title="Account" onclick="toggleSecondSidebar('account');"><i class="bi bi-person-circle"></i></a>
+        <a href="#" title="Account" onclick="toggleSecondSidebar('account');" data-bs-title="My Account" data-bs-toggle="tooltip"><i class="bi bi-person-circle"></i></a>
       </div>
     {% endif %}
     </div>
@@ -185,6 +186,9 @@
   {% block DYNAMIC_DASHBOARD_BODY_FOOTER %}
   {% endblock %}
 <script>
+
+const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
   // Open second sidebar and show correct submenu
   function toggleSecondSidebar(index) {
     const $sidebar = $('#secondSidebar');

@@ -13,3 +13,4 @@ export class ElementSpan extends _elementProto {
 
     }
 }
+export default ElementSpan;

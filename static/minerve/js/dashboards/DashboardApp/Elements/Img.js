@@ -14,3 +14,4 @@ export class ElementImg extends _elementProto {
 
     }
 }
+export default ElementImg;

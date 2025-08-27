@@ -10,3 +10,4 @@ export class ElementDiv extends _elementProto {
 
     }
 }
+export default ElementDiv;
