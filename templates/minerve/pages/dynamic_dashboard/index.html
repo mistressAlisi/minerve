@@ -44,16 +44,15 @@
         {% block DYNAMIC_DASHBOARD_TOP_MENU_ULTOP %}
         {% endblock %}
         {% for entry in DYNAMIC_DASHBOARD_TOP_MENU %}
-
             <li class="nav-item {% if entry.has_submenus %}dropdown{% endif %}">
             <a class="nav-link {% if entry.has_submenus %}dropdown-toggle{% endif %}" href="{{ entry.url }}"
-                    {% if entry.onclick %} onclick="{{ entry.onclick }}"{% endif %}
+                    {% if entry.on_click %} onclick="{{ entry.on_click }}"{% endif %}
                     {%  if entry.active %} active="active"{% endif %}
                     {% if entry.help_text %} title="{{ entry.help_text }}"{% endif %}
                     {% if entry.has_submenus %} data-bs-toggle="dropdown" aria-expanded="false" {% endif %}>
 
             {% if entry.icon %}
-                <i class="{{ entry.icon }}"></i>
+                <i class="{{ entry.icon }} text-success-emphasis"></i>
             {% endif %}
                 {{ entry.name }}
             </a>
@@ -71,7 +70,7 @@
                          on_click="{{ submenu.onclick }}"
                  {% endif %}>
                       {% if submenu.icon %}
-                      <i class="{{ submenu.icon }}"></i>
+                      <i class="{{ submenu.icon }} text-warning-emphasis"></i>
                       {% endif %}
                       {{ submenu.name }}
                   </a></li>
