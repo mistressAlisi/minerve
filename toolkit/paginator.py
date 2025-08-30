@@ -59,7 +59,8 @@ def paginator_paginate_and_serialise(_obj,page=1,page_size=20,filter_cols=[],rel
     :param filter_cols: Filter columns array, default is none. - if specified, only return these cols.
     :return: JSONResponse object containing paginator_table data.
     """
-
+    if len(_obj) == 0:
+        return JsonResponse({"res":"ok","type":"paginator_table","data": {"empty":True}})
     pobjs,start,end,page,total_records,total_pages,paginator_range = paginator_paginate_object(_obj,page,page_size)
     # print(pobjs)
     # print("Right before FSM")
