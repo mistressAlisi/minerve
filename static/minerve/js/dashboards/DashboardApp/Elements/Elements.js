@@ -1,4 +1,5 @@
 export {default as ElementA} from './A.js'
+export {default as ElementH} from './H.js'
 export {default as ElementButton} from './Button.js'
 export {default as ElementDiv} from './Div.js'
 export {default as ElementForm} from './Form.js'

@@ -1,10 +1,6 @@
 import {AbstractApp} from "/static/minerve/js/core/AbstractApp.js";
-import {ElementForm} from "./Elements/Form.js";
-import {ElementInput} from "./Elements/Input.js";
-import {ElementHiddenInput} from "./Elements/HiddenInput.js";
-import {ElementSubmit} from "./Elements/Submit.js";
-import {ElementH} from "./Elements/H.js";
-import {Modal} from "./Elements/Modal.js";
+import {ElementForm,ElementInput,ElementHiddenInput,ElementSubmit,ElementModal,ElementH} from "./Elements/Elements.js";
+import {BrowserDetector} from '/static/browser-dtector/dist/browser-dtector.js';
 
 export class    AbstractDashboardApp extends AbstractApp {
     settings = {
@@ -21,7 +17,7 @@ export class    AbstractDashboardApp extends AbstractApp {
     last_modal_created = false
     last_modal_created_bso = false
     on_ajax_error_func = false
-
+    user_agent = null
     _animateCSS(node, animation, prefix = 'animate__') {
         // We create a Promise and return it
         new Promise((resolve, reject) => {
@@ -308,7 +304,7 @@ export class    AbstractDashboardApp extends AbstractApp {
     }
     _handle_generic_ajax_modal_update(options,res) {
       this.hideLoading();
-      let modal = new Modal(options);
+      let modal = new ElementModal(options);
       let form = new ElementForm({"post_url":res.post_url});
       for (var i in res.fields) {
           var field = res.fields[i];
@@ -372,7 +368,7 @@ export class    AbstractDashboardApp extends AbstractApp {
             "dismissable":dismissable,
             "modal_css_class":modal_css_class
         }
-        let modal = new Modal(title,max_width,dismissable,modal_css_class);
+        let modal = new ElementModal(title,max_width,dismissable,modal_css_class);
         if (url !== false) {
             let turl = url;
             if (add_prefix===true) {
@@ -440,6 +436,8 @@ export class    AbstractDashboardApp extends AbstractApp {
         this.elements["loading_toast"] = new bootstrap.Toast($(this.settings.loading_toast));
         $(document).bind('loading', this.showLoading.bind(this));
         $(document).bind('loaded', this.hideLoading.bind(this));
+        let bdetect = new BrowserDetector()
+        this.user_agent = bdetect.parseUserAgent()
 
     }
 }
