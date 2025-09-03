@@ -93,8 +93,11 @@
     </button>
       <div class="d-lg-flex d-md-flex d-xl-flex d-xxl-flex d-none">
       {% block MINERVE_NAV_LOGIN_AREA %}
-        <button class="btn btn-outline-primary me-2">Login</button>
-        <button class="btn btn-primary">Sign Up</button>
+        {% if account %}
+            <div class="my-account-text p-2">
+                <a href="/my/profile" title="My Account"><i class="fa-duotone fa-solid fa-circle-user"></i> {{ account.acctnum }}</a> | <a href="/cashier/balance" id="balance-link" title="Available Balance"><i class="fa-duotone fa-solid fa-coins"></i><span class="avail_balance">{{ available_balance |floatformat:2 }}</span></a> | <a class="" href="/api/v1/account/logout" title="Logout"><i class="fa-duotone fa-solid fa-person-from-portal"></i>&#160;Sign Out</a>
+            </div>
+          {% endif %}
       {% endblock %}
       </div>
     </div>
