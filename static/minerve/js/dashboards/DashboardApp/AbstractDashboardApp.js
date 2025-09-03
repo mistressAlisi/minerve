@@ -354,7 +354,7 @@ export class    AbstractDashboardApp extends AbstractApp {
 
     }
 
-    generic_ajax_modal_dialogue(title, url, add_prefix = true, max_width = "100%", dismissable = true, load_callback = false, modal_css_class = false, destroy_old_modal = false) {
+    generic_ajax_modal_dialogue(title, url, add_prefix = true, max_width = "100%", dismissable = true, load_callback = false, modal_css_class = false, destroy_old_modal = false,append_to=false) {
         if (destroy_old_modal === true) {
             if (this.last_modal_created !== false) {
                 if (this.last_modal_created.modalDiv !== undefined) {
@@ -368,7 +368,7 @@ export class    AbstractDashboardApp extends AbstractApp {
             "dismissable":dismissable,
             "modal_css_class":modal_css_class
         }
-        let modal = new ElementModal(title,max_width,dismissable,modal_css_class);
+        let modal = new ElementModal(title,max_width,dismissable,modal_css_class,append_to);
         if (url !== false) {
             let turl = url;
             if (add_prefix===true) {

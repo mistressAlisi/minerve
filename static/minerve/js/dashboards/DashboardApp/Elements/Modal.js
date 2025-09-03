@@ -10,12 +10,13 @@ export class Modal {
     xbtn = null;
     clsbtn = null;
     bs_modal = null;
+    append_to = null;
     get_el() {
         return this.modalDiv;
     }
 
-    constructor(title_str, max_width, dismissable = true, css_class = false,...rest) {
-        // console.warn(title_str, max_width, dismissable, css_class);
+    constructor(title_str, max_width, dismissable = true, css_class = false,append_to=false) {
+        // console.warn(title_str, max_width, dismissable, css_class,rest);
         this.modalId = Math.floor(Date.now() / 1000);
         this.modalDiv = $("<div>", {class: "modal", id: this.modalId});
         if (css_class !== false) {
@@ -32,7 +33,9 @@ export class Modal {
 
         this.footer = $("<div>", {class: "modal-footer"});
         this.header.append(this.title);
-
+        if (append_to) {
+            this.append_to = append_to;
+        }
 
         if (dismissable == true) {
             this.xbtn = $("<button>", {
@@ -62,7 +65,13 @@ export class Modal {
         this.dialog.append(this.content);
 
         this.modalDiv.append(this.dialog);
-        $(document.body).append(this.modalDiv);
+
+
+        if (this.append_to === null || this.append_to === false) {
+            $(document.body).append(this.modalDiv);
+        } else {
+            $(this.append_to).append(this.modalDiv);
+        }
         this.bs_modal = new bootstrap.Modal(this.modalDiv);
 
 
