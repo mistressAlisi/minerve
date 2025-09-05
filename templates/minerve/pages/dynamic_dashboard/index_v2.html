@@ -105,72 +105,8 @@
   </nav>
 {% endblock %}
 {% block MINERVE_PAGE_BODY %}
-<!-- Full-page container with vertical flex layout -->
-<div class="d-flex flex-column" style="height: 100vh;">
-  {% if not DYNAMIC_DASHBOARD_SKIP_SIDEBARS %}
-  <!-- SIDEBARS & MAIN (horizontal layout) -->
-  <div class="d-flex flex-grow-1" style="position: relative;">
 
-    <!-- First Sidebar -->
-    <div id="mainSidebar" class="sidebar d-flex flex-column align-items-center">
-      {% for entry in DYNAMIC_DASHBOARD_SIDE_MENU %}
-        <a class="nav-link side-link py-3"
-           {% if entry.submenu_entries %}
-              href="javascript:void(0);"
-              onclick="toggleSecondSidebar({{ forloop.counter0 }})"
-           {% else %}
-              href="{{ entry.url }}"
-           {% endif %}
-           title="{{ entry.name }}"
-           data-bs-placement="right" data-bs-title="{{ entry.name }}" data-bs-toggle="tooltip">
-          <i class="{{ entry.icon }}"></i>
-        </a>
-      {% endfor %}
 
-      <div class="flex-grow-1"></div>
-    {% if not MINERVE_DISABLE_PROFILE_ENTRY %}
-      <div class="bottom-icon mb-3">
-        <a href="#" title="Account" onclick="toggleSecondSidebar('account');" data-bs-title="My Account" data-bs-toggle="tooltip"><i class="bi bi-person-circle"></i></a>
-      </div>
-    {% endif %}
-    </div>
-
-    <!-- Second Sidebar -->
-    <div class="sidebar-right" id="secondSidebar">
-      {% for entry in DYNAMIC_DASHBOARD_SIDE_MENU %}
-        <div class="second-sidebar-section d-none" id="second-sidebar-{{ forloop.counter0 }}">
-          <h6><i class="{{ entry.icon }}"></i> {{ entry.name }}: Menu</h6>
-          <hr class="opacity-50" />
-          <ul class="list-group list-group-flush">
-            {% for sub in entry.submenu_entries %}
-              <li class="list-item">
-                <a class="nav-link d-flex align-items-center py-2" href="{{ sub.url }}"
-                   {% if sub.active %}active="active"{% endif %}
-                   title="{{ sub.name }}" help_text="{{ sub.help_text }}">
-                  <i class="{{ sub.icon }} me-2"></i> <span>{{ sub.name }}</span>
-                </a>
-              </li>
-            {% endfor %}
-          </ul>
-        </div>
-      {% endfor %}
-
-    {% block DYNAMIC_DASHBOARD_SECOND_NAVBAR %}
-      <div class="second-sidebar-section d-none" id="second-sidebar-account">
-        <h6 class=""><i class="bi bi-person-circle"></i> Second Dashbar: Menu</h6>
-         <hl class="opacity-50"></hl>
-        <ul class="list-group list-group-flush">
-            <li class="list-item"><a class="nav-link d-flex align-items-center py-2"  href="/my/profile"><i class="fa-duotone fa-solid fa-address-card"></i>&#160;My Profile</a></li>
-
-        </ul>
-    </div>
-    {% endblock %}
-    <hr class="border-white opacity-25 border-2"/>
-    <div class="flex-container">
-    <button class="btn btn-outline-light" onclick="$('#secondSidebar').removeClass('open');">Close Sidebar</button>
-    </div>
-    </div>
-    {% endif %}
 
 
     <!-- Main content fills remaining space -->
@@ -184,11 +120,10 @@
         </div>
       {% endblock %}
     </main>
-{% if not DYNAMIC_DASHBOARD_SKIP_SIDEBARS %}
-  </div>
-{% endif %}
 
-</div>
+
+
+
   {% block DYNAMIC_DASHBOARD_BODY_FOOTER %}
   {% endblock %}
 <script>

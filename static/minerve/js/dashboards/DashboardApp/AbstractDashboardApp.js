@@ -186,27 +186,30 @@ export class    AbstractDashboardApp extends AbstractApp {
     }
 
     load_page(event) {
-        event.preventDefault();
-        event.stopPropagation();
-        // console.log("Event Catch Load Page",event,event.target)
-        var trgturl = $(event.target).data("target-url");
-        if (trgturl == undefined) {
-            return false;
-        }
-        this.showLoading();
+        console.warn(event.target,event.target.href)
+        if (event.target.href.slice(-1) === "#") {
+            event.preventDefault();
+            event.stopPropagation();
+            // console.log("Event Catch Load Page",event,event.target)
+            var trgturl = $(event.target).data("target-url");
+            if (trgturl == undefined) {
+                return false;
+            }
+            this.showLoading();
 
-        let target_url = this.urls["_prefix"] + trgturl;
+            let target_url = this.urls["_prefix"] + trgturl;
 
-        this._current_url = target_url;
-        if ($(event.target).data("target-form-url") !== undefined) {
-            let form_target_url = this.urls["_prefix"] + $(event.target).data("target-form-url");
-            $(this.settings.dashboard_form_area).load(form_target_url);
-            this.elements["form"] = $(this.settings.dashboard_form_area);
-        }
-        $(this.settings.dashboard_panel).load(target_url, false, this.hideLoading.bind(this));
-        try {
-            $(this._parent_walker($(event.target)[0])[0].parentNode).offcanvas('hide');
-        } catch (e) {
+            this._current_url = target_url;
+            if ($(event.target).data("target-form-url") !== undefined) {
+                let form_target_url = this.urls["_prefix"] + $(event.target).data("target-form-url");
+                $(this.settings.dashboard_form_area).load(form_target_url);
+                this.elements["form"] = $(this.settings.dashboard_form_area);
+            }
+            $(this.settings.dashboard_panel).load(target_url, false, this.hideLoading.bind(this));
+            try {
+                $(this._parent_walker($(event.target)[0])[0].parentNode).offcanvas('hide');
+            } catch (e) {
+            }
         }
     }
 
