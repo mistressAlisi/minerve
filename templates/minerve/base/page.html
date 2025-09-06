@@ -36,11 +36,10 @@
     @import url('https://fonts.googleapis.com/css2?family=Dosis:wght@200..800&family=Teko:wght@300..700&display=swap&family=Dancing+Script:wght@400..700&display=swap&family=Monoton&display=swap');
     </style>
     <!-- Custom styles for this template -->
-    <link href="/static/minerve/themes/neon_nights/css/theme.css" rel="stylesheet">
+
     {% for css in MINERVE_PAGE_CSS %}
         <link href="/static/{{ css.css_file_path }}" rel="stylesheet">
     {% endfor %}
-    <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
 
   </head>
   <body class="h-100 w-100 d-flex text-center" {% if MINERVE_BODY_THEME %} data-bs-theme="{{ MINERVE_BODY_THEME }}"{% endif %}>
@@ -94,6 +93,7 @@
         <ul class="navbar-nav mb-2 mb-lg-0">
         {% for entry in DYNAMIC_DASHBOARD_TOP_MENU %}
           <li class="nav-item">
+          {
             <a class="nav-link" href="{{ entry.url }}"
                     {% if entry.onclick %} onclick="{{ entry.onclick }}"{% endif %}
                     {%  if entry.active %} active="active"{% endif %}
