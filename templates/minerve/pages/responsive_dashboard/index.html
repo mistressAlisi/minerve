@@ -96,11 +96,13 @@
 
                               <li class="nav-item">
                                <a class="nav-link d-flex align-items-center gap-2 text-info" {% if entry.onclick %} onclick="{{ entry.onclick }}"{% endif %}
-                                       {% if entry.help_text %} title="{{ entry.help_text }}"{% endif %} aria-current="page" href="{{ entry.url }}"
+                                       {% if entry.help_text %} title="{{ entry.help_text }}"{% endif %} aria-current="page" 
+                                       {% if entry.submenu_entries %}
+                                       href="#" data-bs-toggle="collapse" aria-expanded="false" data-bs-target="#col_{{ forloop.counter }}"
+                                       {% else %}
+                                       href="#" data-target-url="{{ entry.url }}"
+                                       {% endif %}
                                        {%  if entry.active %} active="active"{% endif %}
-                                  {% if entry.submenu_entries %}
-                                       data-bs-toggle="collapse" aria-expanded="false" data-bs-target="#col_{{ forloop.counter }}"
-                                  {% endif %}
                                   >
                                    {% if entry.icon %}<i class="{{ entry.icon }}"></i>{% endif %} {{ entry.name }}
                                </a>
@@ -109,7 +111,7 @@
                                    <ul class="nav flex-column collapse" id="col_{{ forloop.counter }}">
                                    {% for sub in entry.submenu_entries %}
                                       <li class="nav-item">
-                                        <a class="nav-link d-flex  gap-2 " href="{{ sub.url }}"
+                                        <a class="nav-link d-flex  gap-2 " href="#" data-target-url="{{ sub.url }}"
                                            {% if sub.active %}active="active"{% endif %}
                                            title="{{ sub.name }}" help_text="{{ sub.help_text }}">
                                           <i class="{{ sub.icon }} me-2"></i> <span>{{ sub.name }}</span>
@@ -147,4 +149,34 @@
   {% block MINERVE_PAGE_FOOTER %}
   {% endblock %}
   {% include "minerve/pages/dynamic_dashboard/loading_toast.html" %}
+  <script type="module">
+    import { AbstractDashboardApp } from "/static/minerve/js/dashboards/DashboardApp/AbstractDashboardApp.js";
+    
+    class ResponsiveDashboard extends AbstractDashboardApp {
+      settings = {
+        "loading_toast": "#loading_toast",
+        "nav-link-cls": [".nav-link"],
+        "dashboard_panel": "#main-content-v2",
+        "toastSuccessCls": "toast-success",
+        "toastErrorCls": "toast-error",
+        "toastCls": "toast-info"
+      }
+      
+      urls = {
+        "_prefix": "/",
+        "_api_prefix": "/api/v1/"
+      }
+      
+      elements = {}
+      
+      constructor() {
+        super();
+        this.bind_links();
+        console.info("Responsive Dashboard initialized with AJAX navigation");
+      }
+    }
+    
+    // Initialize the dashboard
+    window.dashboard = new ResponsiveDashboard();
+  </script>
   </body>
