@@ -8,6 +8,7 @@ export class    AbstractDashboardApp extends AbstractApp {
         "nav-link-cls": [".nav-link", ".nav-dlink"],
         "on_submit_complete": false,
         "toastSuccessCls": "toast-success",
+        "disable_success_toasts": false,
 
     }
     urls = {}
@@ -144,11 +145,13 @@ export class    AbstractDashboardApp extends AbstractApp {
 
 
     successToast(header, body) {
-        new bs5.Toast({
-            body: body,
-            header: header,
-            className: this.settings.toastSuccessCls,
-        }).show();
+        if (this.settings["disable_success_toasts"] !== true) {
+            new bs5.Toast({
+                body: body,
+                header: header,
+                className: this.settings.toastSuccessCls,
+            }).show();
+        }
     }
 
     errorToast(header, body) {
