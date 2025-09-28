@@ -132,7 +132,9 @@ export class AbstractTableApp extends AbstractApp {
         this.row_count++
     }
 
-    _set_header(columns = []) {
+    _set_header(column_obj = []) {
+        let columns = Object.values(column_obj)
+        let keys = Object.keys(column_obj)
         this.header.empty()
         this.tag = "tr"
         this.props = {}
@@ -162,7 +164,7 @@ export class AbstractTableApp extends AbstractApp {
             this.props = {"class":"dropdown-item","html":this.texts["sort_by"]+" "+this.texts["sort_none"],"href":"#"}
             this.sorters[key] = this.dom_factory()
             this.sorters[key].on("click", this._handle_sort_event.bind(this))
-            this.sorters[key].data("sort_target",columns[key]);
+            this.sorters[key].data("sort_target",keys[key]);
             this.sorters[key].data("sort_key",key);
             this.sorters[key].data("sort_mode","none");
             li[0].append(this.sorters[key][0])
@@ -423,7 +425,7 @@ export class AbstractTableApp extends AbstractApp {
         if ((res.data.paginator.current_page == 1)&&(this.header_set === false)) {
             this.header_set = true;
             this.header.empty()
-            this._set_header(Object.values(res.data.column_names))
+            this._set_header(res.data.column_names)
         }
         this.body.empty()
         for (let key in res.data.rows) {
