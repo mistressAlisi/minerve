@@ -1,11 +1,12 @@
 import {_elementProto} from "./prototype.js";
-import {ElementHiddenInput,ElementInput,ElementSelect} from "./Elements.js";
+import {ElementCheckboxInput, ElementHiddenInput, ElementInput, ElementSelect,ElementSubmit,ElementTextArea} from "./Elements.js";
+
 
 
 export class ElementForm extends _elementProto {
 
     constructor(post_url,method="POST",target="#",on_submit=false,on_change=false,...rest) {
-        console.warn(post_url,method,rest);
+        // console.warn(post_url,method,rest);
         super();
         this.tag = "form";
         this.props = {
@@ -14,7 +15,7 @@ export class ElementForm extends _elementProto {
             "target": target,
         }
 
-        console.log(this.props);
+        // console.log(this.props);
         this.dom_el = this.dom_factory();
         if ("intro_str" in rest) {
             this.intro_str = $("<div>", {class: "p", html: rest.intro_str});
@@ -42,18 +43,25 @@ export class ElementForm extends _elementProto {
                      field_obj = new ElementHiddenInput(field.name,field.value);
                   break;
                   case "select":
-                    field_obj = new ElementSelect(field.name,{});
-                    field_obj.create_option("","---")
-                      // console.warn(field);
+                    field_obj = new ElementSelect(field.name,{"values":field.values,"value":field.value});
+                  break;
+                  case "boolean":
+                      field_obj = new ElementCheckboxInput(field.name,field.value,{"verbose_name":field.verbose_name});
+                  break;
+                  case "json":
+                      field_obj = new ElementTextArea(field.name,field.value,{"verbose_name":field.verbose_name});
                   break;
                   default:
                       field_obj = new ElementInput(field.name,field.type,{"text":field,"value":field.value,"verbose_name":field.verbose_name});
+                  break;
               }
-              // console.log(field_obj);
+
               if (field_obj != false) {
                   this.dom_el.append(field_obj.get_el());
               }
           }
+          let field_btn = new ElementSubmit({"label":"Save Record","class":"btn btn-accept"})
+          this.dom_el.append(field_btn.dom_el);
     }
 }
 export default ElementForm;

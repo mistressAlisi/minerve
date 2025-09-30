@@ -17,6 +17,8 @@ export class AbstractTableApp extends AbstractApp {
         "navigation_display_count":true,
         "navigation_display_status":true,
         "navigation_display_pbar":true,
+        "disable_normal_toasts":false,
+        "toast_class":"",
         "display_cols": []
     }
     urls = {
@@ -46,7 +48,9 @@ export class AbstractTableApp extends AbstractApp {
         "detail_column_name":"Detail Name",
         "detail_column_value":"Detail Value",
         "edit_modal_title":"Edit Record",
-        "detail_modal_title":"Record Details"
+        "detail_modal_title":"Record Details",
+        "edit_header":"Success!",
+        "edit_body":"Record updated successfully."
 
     }
     navigation = {
@@ -78,6 +82,7 @@ export class AbstractTableApp extends AbstractApp {
     footer_div = false
     header_set = false
 
+
     dom_factory() {
         let dom_el = $("<"+this.tag+"/>",this.props);
         return dom_el;
@@ -88,18 +93,42 @@ export class AbstractTableApp extends AbstractApp {
     get_container() {
         return this.dom_con;
     }
+
+    normalToast(header, body) {
+        if (this.settings["disable_normal_toasts"] !== true) {
+            new bs5.Toast({
+                body: body,
+                header: header,
+                className: this.settings.toast_class,
+
+            }).show();
+        }
+    }
+
+    _handle_imf_post(edit_modal,res) {
+        this.normalToast(this.texts.edit_header,this.texts.edit_body);
+        edit_modal.bs_modal.hide()
+        this.load(this.current_page)
+    }
+    _handle_internal_modal_form(edit_modal,event) {
+        this.generic_post_form_v2({"event":event,"callback":this._handle_imf_post.bind(this,edit_modal)})
+    }
     _internal_modal_edit_handle(res) {
-        let edit_modal = new ElementModal(this.texts.edit_modal_title,"100%",true,false,$(document.body));
-        let form = new ElementForm({"post_url":res.post_url});
+        let edit_modal = new ElementModal(this.texts.edit_modal_title,"",true,false,$(document.body));
+        let form = new ElementForm(this.urls.save_endpoint);
+        this.elements["form"] = form.dom_el
         edit_modal.modalBody.empty()
         edit_modal.modalBody.append(form.dom_el);
-        console.warn(res.data.rows);
+        form.dom_el.on("submit",this._handle_internal_modal_form.bind(this,edit_modal));
+        // console.warn(res.data.rows);
         form.load_fields(res.data.rows);
         edit_modal.bs_modal.show();
 
     }
+
+
     _internal_modal_detail_render(res) {
-        let detail_modal = new ElementModal(this.texts.detail_modal_title,"100%",true,false,$(document.body));
+        let detail_modal = new ElementModal(this.texts.detail_modal_title,"",true,false,$(document.body));
         let rowkeys = Object.keys(res.data.values)
         this.tag = "table"
         this.props = {"class":"table table-striped table-hover table-responsive",}

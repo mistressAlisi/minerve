@@ -1,6 +1,6 @@
 import {_elementProto} from "./prototype.js";
 
-export class ElementInput extends _elementProto {
+export class ElementCheckboxInput extends _elementProto {
     container = false;
     label = false;
     input = false;
@@ -9,7 +9,7 @@ export class ElementInput extends _elementProto {
     get_el() {
         return this.container;
     }
-    constructor(id,type="text",{...props}) {
+    constructor(id,checked=false,{...props}) {
         super()
         /** Build the container first: **/
         this.tag = "div"
@@ -18,16 +18,17 @@ export class ElementInput extends _elementProto {
             this.props["class"] = this.props["class"]+" "+props["container_class"];
         }
         this.container = this.dom_factory();
-        this.props = {"class":"col-auto pt-2 mt-1 text-info"}
+        this.props = {"class":"col-auto pt-1 text-info"}
         let div1 = this.dom_factory();
         this.props = {"class":"col-auto"}
         let div2 = this.dom_factory();
         this.container.append(div1,div2);
+
         /** Now the label: **/
         this.tag = "label"
         this.props = {
             "for": id,
-            "class": "form-label"
+            "class": "form-check-label"
         }
         if ("verbose_name" in props){
             this.props["text"] = props["verbose_name"]+": ";
@@ -42,9 +43,10 @@ export class ElementInput extends _elementProto {
         this.props = {
             "id": "id_"+id,
             "name":id,
-            "type": "text",
-            "class":"form-control",
-            "aria-describedby": id+"help"
+            "type": "checkbox",
+            "class":"form-check-input",
+            "aria-describedby": id+"help",
+            "checked": checked,
         }
 
         $.extend(this.props, props);
@@ -75,4 +77,4 @@ export class ElementInput extends _elementProto {
 
     }
 }
-export default ElementInput;
+export default ElementCheckboxInput;

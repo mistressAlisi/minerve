@@ -1,6 +1,6 @@
 import {_elementProto} from "./prototype.js";
 
-export class ElementInput extends _elementProto {
+export class ElementTextArea extends _elementProto {
     container = false;
     label = false;
     input = false;
@@ -9,7 +9,9 @@ export class ElementInput extends _elementProto {
     get_el() {
         return this.container;
     }
-    constructor(id,type="text",{...props}) {
+
+
+    constructor(id,value,{...props}) {
         super()
         /** Build the container first: **/
         this.tag = "div"
@@ -22,7 +24,7 @@ export class ElementInput extends _elementProto {
         let div1 = this.dom_factory();
         this.props = {"class":"col-auto"}
         let div2 = this.dom_factory();
-        this.container.append(div1,div2);
+        this.container.append(div1,div2)
         /** Now the label: **/
         this.tag = "label"
         this.props = {
@@ -38,12 +40,11 @@ export class ElementInput extends _elementProto {
         // console.warn(this.label,this.props);
         // this.container.append(this.label);
         div1.append(this.label);
-        this.tag = "input";
+        this.tag = "textarea";
         this.props = {
             "id": "id_"+id,
             "name":id,
-            "type": "text",
-            "class":"form-control",
+            "html":value,
             "aria-describedby": id+"help"
         }
 
@@ -71,8 +72,12 @@ export class ElementInput extends _elementProto {
         };
         if ('on_change' in props) {
             this.dom_el.on("change", props["on_change"]);
-        };
+        }
+
+
+
 
     }
+
 }
-export default ElementInput;
+export default ElementTextArea;

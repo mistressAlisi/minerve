@@ -4,6 +4,8 @@ toolkit/serialisers.py
 Toolkit utilities for [De]-Serialising Models.
 """
 import hashlib
+import importlib
+import json
 from uuid import UUID
 
 from django.db.models import ForeignKey, ManyToOneRel, CharField
@@ -205,7 +207,20 @@ def edit_row_serialiser(model_instance,fields=False,readonly=[]):
                 f= getattr(model_instance,field.name)
                 fieldData["value"] = str(f.pk)
                 fieldData["to_field"] = f"{f._meta.app_label}.{f._meta.object_name}"
+                fieldData["values"] = []
+                pkObj = importlib.import_module(f"{f._meta.app_label}.models")
+                objs = getattr(pkObj,f"{f._meta.object_name}")
+                for obj in objs.objects.all():
+                    for key in ["name","title","label","slug","domain_fqdn"]:
+                        if hasattr(obj,key):
+                            strname = str(getattr(obj,key))
+                            fieldData["values"].append({"value":str(obj.pk),"label":strname})
+                            break
 
+
+            elif fieldData["type"] == "JSONField":
+                fieldData["type"] = "json"
+                fieldData["value"] = json.dumps(getattr(model_instance,field.name))
             else:
                 fieldData["type"] = "text"
 
