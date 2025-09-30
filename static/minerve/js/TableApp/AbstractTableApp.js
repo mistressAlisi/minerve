@@ -1,5 +1,11 @@
 import {AbstractApp} from "/static/minerve/js/core/AbstractApp.js";
 import {ElementA} from "/static/minerve/js/dashboards/DashboardApp/Elements/A.js";
+import {
+    ElementForm,
+    ElementHiddenInput,
+    ElementInput,
+    ElementModal, ElementSubmit
+} from "../dashboards/DashboardApp/Elements/Elements.js";
 
 
 export class AbstractTableApp extends AbstractApp {
@@ -15,7 +21,11 @@ export class AbstractTableApp extends AbstractApp {
     }
     urls = {
         "_api_prefix":"/api/v1/",
-        "paginator_endpoint":"change/me"
+        "paginator_endpoint":"change/me",
+        "detail_endpoint":"change/me/",
+        "edit_endpoint":"change/me/",
+        "save_endpoint":"change/me/",
+        "delete_endpoint":"change/me/",
     }
     texts =  {
         "navigation_aria": "Table Navigation Range",
@@ -32,7 +42,11 @@ export class AbstractTableApp extends AbstractApp {
         "sort_desc":"<i class=\"fa-duotone fa-solid fa-down-to-dotted-line\"></i> Descending",
         "search":"<i class=\"fa-duotone fa-solid fa-radar\"></i> Search",
         "go_search":"<i class=\"fa-duotone fa-solid fa-magnifying-glass\"></i>",
-        "all_records":"Viewing all records."
+        "all_records":"Viewing all records.",
+        "detail_column_name":"Detail Name",
+        "detail_column_value":"Detail Value",
+        "edit_modal_title":"Edit Record",
+        "detail_modal_title":"Record Details"
 
     }
     navigation = {
@@ -63,6 +77,7 @@ export class AbstractTableApp extends AbstractApp {
     footer = false
     footer_div = false
     header_set = false
+
     dom_factory() {
         let dom_el = $("<"+this.tag+"/>",this.props);
         return dom_el;
@@ -72,6 +87,74 @@ export class AbstractTableApp extends AbstractApp {
     }
     get_container() {
         return this.dom_con;
+    }
+    _internal_modal_edit_handle(res) {
+        let edit_modal = new ElementModal(this.texts.edit_modal_title,"100%",true,false,$(document.body));
+        let form = new ElementForm({"post_url":res.post_url});
+        edit_modal.modalBody.empty()
+        edit_modal.modalBody.append(form.dom_el);
+        console.warn(res.data.rows);
+        form.load_fields(res.data.rows);
+        edit_modal.bs_modal.show();
+
+    }
+    _internal_modal_detail_render(res) {
+        let detail_modal = new ElementModal(this.texts.detail_modal_title,"100%",true,false,$(document.body));
+        let rowkeys = Object.keys(res.data.values)
+        this.tag = "table"
+        this.props = {"class":"table table-striped table-hover table-responsive",}
+        let table = this.dom_factory();
+        detail_modal.modalBody.empty();
+        detail_modal.modalBody.append(table);
+        this.tag = "thead"
+        let theadc = this.dom_factory();
+        this.tag = "tbody"
+        let tbody = this.dom_factory();
+
+        this.table.append(theadc);
+        this.tag = "tr";
+        this.props = {};
+        let thead = this.dom_factory();
+        this.tag = "td";
+        this.props = {"html":this.texts.detail_column_name};
+        let thd1 = this.dom_factory();
+        thead.append(thd1);
+        this.props = {"html":this.texts.detail_column_value};
+        thd1 = this.dom_factory();
+        thead.append(thd1);
+        theadc.append(thead);
+        table.append(theadc);
+        table.append(tbody);
+        for (let i in rowkeys) {
+            let key = rowkeys[i];
+            this.tag = "tr";
+            this.props = {};
+            let ltr = this.dom_factory();
+            tbody.append(ltr);
+            this.tag = "td";
+            if (key in res.data.names) {
+                this.props = {"text":res.data.names[key]+":"}
+            } else {
+                this.props = {"text":key+":"}
+            }
+            let ltd = this.dom_factory();
+            ltr.append(ltd);
+            this.props = {"text":res.data.values[key]}
+            ltd = this.dom_factory();
+            ltr.append(ltd);
+
+        }
+        detail_modal.bs_modal.show()
+    }
+    _internal_modal_detail_handle(event) {
+            let uuid = $(event.target).data("uuid");
+            this.generic_api_getreq(this.urls.detail_endpoint+uuid,false,this._internal_modal_detail_render.bind(this));
+
+    }
+    _internal_edit_handle(event) {
+            let uuid = $(event.target).data("uuid");
+            this.generic_api_getreq(this.urls.edit_endpoint+uuid,false,this._internal_modal_edit_handle.bind(this));
+
     }
 
     _add_row(data,additional_cols=false) {
@@ -116,6 +199,12 @@ export class AbstractTableApp extends AbstractApp {
                 // First type: Modal Link!
                 if (addcol["type"] === "modal_view") {
                     element = new ElementA("#", addcol["text"], {"onclick": addcol["onclick"] + "('" + pk + "');"})
+                } else if (addcol["type"] === "internal_modal_detail") {
+                    element = new ElementA("#", addcol["text"], {"data-uuid":pk})
+                    element.dom_el.on("click",this._internal_modal_detail_handle.bind(this))
+                } else if (addcol["type"] === "internal_modal_edit") {
+                    element = new ElementA("#", addcol["text"], {"data-uuid":pk})
+                    element.dom_el.on("click",this._internal_edit_handle.bind(this))
                 }
                 // console.log(element);
                 if (element !== false) {
@@ -130,6 +219,44 @@ export class AbstractTableApp extends AbstractApp {
         this.row_data.push(row_data)
         this.body[0].append(row_data["tr"][0])
         this.row_count++
+    }
+
+    _update_record_modal(options,res) {
+      let modal = new ElementModal(options);
+      let form = new ElementForm({"post_url":res.post_url});
+      for (var i in res.fields) {
+          var field = res.fields[i];
+          var field_obj = false;
+          // console.log(field);
+          var type = field.type;
+          delete field.type;
+          switch (type) {
+              case "uuid":
+                 field_obj = new ElementHiddenInput(field.name,field.value,field);
+              break;
+              default:
+                  field_obj = new ElementInput(field.name,field.type,field)
+          }
+          // console.warn(field_obj);
+          if (field_obj != false) {
+              form.append(field_obj.get_el());
+          }
+      }
+      var submit = new ElementSubmit({"label":"Update Record"});
+      form.append(submit.get_el());
+      form.get_el().on("submit", this._handle_generic_ajax_update_form.bind(this))
+      modal.modalBody.empty();
+      modal.modalBody.append(form.get_el());
+      modal.modalDiv.on("hidden.bs.modal", function (event) {
+           $(event.target).remove();
+      });
+      modal.bs_modal.show();
+      if ("refresh" in options) {
+          modal.refresh = true;
+      }
+      this.last_modal_created = modal
+     // console.log(res,options);
+
     }
 
     _set_header(column_obj = []) {
@@ -576,6 +703,8 @@ export class AbstractTableApp extends AbstractApp {
         this._set_footer()
         // }
         this.load(1);
+
+        $(this.dom_con).trigger("table_start");
 
 
     }

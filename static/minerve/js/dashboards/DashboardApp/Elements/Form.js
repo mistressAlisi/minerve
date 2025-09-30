@@ -1,4 +1,6 @@
 import {_elementProto} from "./prototype.js";
+import {ElementHiddenInput,ElementInput,ElementSelect} from "./Elements.js";
+
 
 export class ElementForm extends _elementProto {
 
@@ -25,6 +27,33 @@ export class ElementForm extends _elementProto {
             this.dom_el.on("change", on_change);
         };
 
+    }
+
+    load_fields(fields) {
+          for (var i in fields) {
+              var field = fields[i];
+              var field_obj = false;
+
+              var type = field.type;
+              delete field.type;
+
+              switch (type) {
+                  case "uuid":
+                     field_obj = new ElementHiddenInput(field.name,field.value);
+                  break;
+                  case "select":
+                    field_obj = new ElementSelect(field.name,{});
+                    field_obj.create_option("","---")
+                      // console.warn(field);
+                  break;
+                  default:
+                      field_obj = new ElementInput(field.name,field.type,{"text":field,"value":field.value,"verbose_name":field.verbose_name});
+              }
+              // console.log(field_obj);
+              if (field_obj != false) {
+                  this.dom_el.append(field_obj.get_el());
+              }
+          }
     }
 }
 export default ElementForm;

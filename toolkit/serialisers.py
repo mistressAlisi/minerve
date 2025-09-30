@@ -8,6 +8,7 @@ from uuid import UUID
 
 from django.db.models import ForeignKey, ManyToOneRel, CharField
 from django.db.models.fields import DateTimeField, TimeField, DateField
+
 from django.forms import model_to_dict
 from django.http import JsonResponse
 
@@ -46,8 +47,14 @@ def simple_serialiser(model_instance,jsonify=False):
     """
     verbose_names, help_text, columns = model_metadata(model_instance)
     rdata = model_to_dict(model_instance)
+
     for key in columns:
-        if type(getattr(model_instance,key)) == ForeignKey:
+        # print(str(type(getattr(model_instance, key))))
+        if hasattr(getattr(model_instance,key),"all"):
+            rdata[key] = {"values": [], "name": key}
+            for obj in getattr(model_instance,key).all():
+                rdata[key]["values"].append(str(obj.pk))
+        elif type(getattr(model_instance,key)) == ForeignKey:
             name =  str(model_instance)
             rdata[key] = {"value":str(rdata[key]),"name":name}
         elif(type(rdata[key]) == UUID):
@@ -83,6 +90,10 @@ def filtered_serialiser(model_instance,fields=[],jsonify=False):
             if curr_val:
                 name = str(curr_val)
                 rdata[key] = {"value": str(curr_val.pk), "name": name}
+        elif hasattr(getattr(model_instance, key), "all"):
+            rdata[key] = {"values": [], "name": key}
+            for obj in getattr(model_instance, key).all():
+                rdata[key]["values"].append(str(obj.pk))
         elif type(curr_val) == UUID:
             rdata[key] = str(curr_val)
         elif type(model_instance._meta.get_field(key)) == CharField:
@@ -191,8 +202,9 @@ def edit_row_serialiser(model_instance,fields=False,readonly=[]):
                 fieldData["value"] = str(getattr(model_instance,field.name))
             elif fieldData["type"] == "ForeignKey":
                 fieldData["type"] = "select"
-                fieldData["value"] = str(getattr(model_instance,field.name))
-                #fieldData["options"] =
+                f= getattr(model_instance,field.name)
+                fieldData["value"] = str(f.pk)
+                fieldData["to_field"] = f"{f._meta.app_label}.{f._meta.object_name}"
 
             else:
                 fieldData["type"] = "text"
