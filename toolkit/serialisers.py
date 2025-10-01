@@ -59,10 +59,10 @@ def simple_serialiser(model_instance,jsonify=False):
         elif type(getattr(model_instance,key)) == ForeignKey:
             name =  str(model_instance)
             rdata[key] = {"value":str(rdata[key]),"name":name}
-        elif(type(rdata[key]) == UUID):
-            rdata[key] = str(rdata[key])
+        elif(type(getattr(model_instance,key)) == UUID):
+            rdata[key] = str(getattr(model_instance,key))
         else:
-            rdata[key] = rdata[key]
+            rdata[key] = getattr(model_instance,key)
     if not jsonify:
         return rdata,verbose_names, help_text
     else:
