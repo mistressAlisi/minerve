@@ -51,18 +51,19 @@ def simple_serialiser(model_instance,jsonify=False):
     rdata = model_to_dict(model_instance)
 
     for key in columns:
-        # print(str(type(getattr(model_instance, key))))
+        print(str(type(getattr(model_instance, key))))
         if hasattr(getattr(model_instance,key),"all"):
             rdata[key] = {"values": [], "name": key}
             for obj in getattr(model_instance,key).all():
                 rdata[key]["values"].append(str(obj.pk))
         elif type(getattr(model_instance,key)) == ForeignKey:
+            print("FK")
             name =  str(model_instance)
             rdata[key] = {"value":str(rdata[key]),"name":name}
         elif(type(getattr(model_instance,key)) == UUID):
             rdata[key] = str(getattr(model_instance,key))
         else:
-            rdata[key] = getattr(model_instance,key)
+            rdata[key] = str(getattr(model_instance,key))
     if not jsonify:
         return rdata,verbose_names, help_text
     else:

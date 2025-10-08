@@ -200,12 +200,21 @@ export class AbstractTableApp extends AbstractApp {
             if (key === "__pk") {
                 pk = data[key]
             } else {
+                // console.log(key,data[key],typeof(data[key]))
                 switch (typeof (data[key])) {
                     case "object":
-                        this.props = {
-                            "html": data[key].name,
-                            "id": "td_" + key,
-                            "data_id": data[key].id,
+                        if (data[key] !== null) {
+                            this.props = {
+                                "html": data[key].name,
+                                "id": "td_" + key,
+                                "data_id": data[key].id,
+                            }
+                        } else {
+                            this.props = {
+                                "html": "",
+                                "id": "td_" + key,
+                                "data_id":""
+                            }
                         }
                         break;
                     default:
