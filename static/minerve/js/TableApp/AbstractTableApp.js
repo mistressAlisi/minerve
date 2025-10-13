@@ -50,7 +50,8 @@ export class AbstractTableApp extends AbstractApp {
         "edit_modal_title":"Edit Record",
         "detail_modal_title":"Record Details",
         "edit_header":"Success!",
-        "edit_body":"Record updated successfully."
+        "edit_body":"Record updated successfully.",
+        "empty_table":""
 
     }
     navigation = {
@@ -732,18 +733,23 @@ export class AbstractTableApp extends AbstractApp {
     _start_handle(res) {
         // console.log("Table Data",data.paginator);
         // console.log(data);
-        this.total_records = res.data.paginator.total_records;
-        this.current_page = res.data.paginator.current_page;
-        this.total_pages = res.data.paginator.total_pages;
-        this.columns = res.data.columns;
-        console.log("Initalised a Table with "+this.total_records+" records across "+this.total_pages+" total pages of "+this.settings["pagination_size"]+" rows each.");
-        // if (this.total_pages > 1) {
-        this._set_footer()
-        // }
-        this.load(1);
+        if  ("empty" in res.data) {
+            console.log("Received an Empty Table Set!");
 
-        $(this.dom_con).trigger("table_start");
+        } else {
 
+            this.total_records = res.data.paginator.total_records;
+            this.current_page = res.data.paginator.current_page;
+            this.total_pages = res.data.paginator.total_pages;
+            this.columns = res.data.columns;
+            console.log("Initalised a Table with " + this.total_records + " records across " + this.total_pages + " total pages of " + this.settings["pagination_size"] + " rows each.");
+            // if (this.total_pages > 1) {
+            this._set_footer()
+            // }
+            this.load(1);
+
+            $(this.dom_con).trigger("table_start");
+        }
 
     }
 
