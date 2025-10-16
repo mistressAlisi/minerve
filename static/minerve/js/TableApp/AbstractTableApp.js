@@ -23,11 +23,13 @@ export class AbstractTableApp extends AbstractApp {
     }
     urls = {
         "_api_prefix":"/api/v1/",
+        "_prefix":"/",
         "paginator_endpoint":"change/me",
         "detail_endpoint":"change/me/",
         "edit_endpoint":"change/me/",
         "save_endpoint":"change/me/",
         "delete_endpoint":"change/me/",
+        "internal_modal_ajax_url":"change/me/",
     }
     texts =  {
         "navigation_aria": "Table Navigation Range",
@@ -176,6 +178,14 @@ export class AbstractTableApp extends AbstractApp {
         }
         detail_modal.bs_modal.show()
     }
+    _internal_modal_ajax_handle(event) {
+            let uuid = $(event.target).data("uuid");
+            let detail_modal = new ElementModal(this.texts.detail_modal_title,"95%",true,false,$(document.body));
+            let url = this.urls["_prefix"] + this.urls["internal_modal_ajax_url"] + uuid;
+            detail_modal.modalBody.load(url)
+            detail_modal.dialog.addClass('modal-dialog-scrollable');
+            detail_modal.bs_modal.show()
+    }
     _internal_modal_detail_handle(event) {
             let uuid = $(event.target).data("uuid");
             this.generic_api_getreq(this.urls.detail_endpoint+uuid,false,this._internal_modal_detail_render.bind(this));
@@ -239,8 +249,11 @@ export class AbstractTableApp extends AbstractApp {
                 if (addcol["type"] === "modal_view") {
                     element = new ElementA("#", addcol["text"], {"onclick": addcol["onclick"] + "('" + pk + "');"})
                 } else if (addcol["type"] === "internal_modal_detail") {
-                    element = new ElementA("#", addcol["text"], {"data-uuid":pk})
-                    element.dom_el.on("click",this._internal_modal_detail_handle.bind(this))
+                    element = new ElementA("#", addcol["text"], {"data-uuid": pk})
+                    element.dom_el.on("click", this._internal_modal_detail_handle.bind(this))
+                } else if (addcol["type"] === "internal_modal_ajax") {
+                    element = new ElementA("#", addcol["text"], {"data-uuid": pk})
+                    element.dom_el.on("click", this._internal_modal_ajax_handle.bind(this))
                 } else if (addcol["type"] === "internal_modal_edit") {
                     element = new ElementA("#", addcol["text"], {"data-uuid":pk})
                     element.dom_el.on("click",this._internal_edit_handle.bind(this))
