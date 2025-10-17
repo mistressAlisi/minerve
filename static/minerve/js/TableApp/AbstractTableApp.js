@@ -19,7 +19,8 @@ export class AbstractTableApp extends AbstractApp {
         "navigation_display_pbar":true,
         "disable_normal_toasts":false,
         "toast_class":"",
-        "display_cols": []
+        "display_cols": [],
+        "filter_form_fields":[]
     }
     urls = {
         "_api_prefix":"/api/v1/",
@@ -53,7 +54,8 @@ export class AbstractTableApp extends AbstractApp {
         "detail_modal_title":"Record Details",
         "edit_header":"Success!",
         "edit_body":"Record updated successfully.",
-        "empty_table":""
+        "empty_table":"",
+        "filter_modal_title":"Filter Settings"
 
     }
     navigation = {
@@ -84,7 +86,10 @@ export class AbstractTableApp extends AbstractApp {
     footer = false
     footer_div = false
     header_set = false
-
+    filter_modal = false
+    filter_form = false
+    filter_string = false
+    filter_fields = []
 
     dom_factory() {
         let dom_el = $("<"+this.tag+"/>",this.props);
@@ -106,6 +111,35 @@ export class AbstractTableApp extends AbstractApp {
 
             }).show();
         }
+    }
+    _handle_filter_form_post(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        this.filter_modal.bs_modal.hide()
+        this.filter_fields = this.filter_form.get_el().serializeArray()
+        this.filter_string = ""
+        for (let f in this.filter_fields) {
+            let fd = this.filter_fields[f];
+            this.filter_string = this.filter_string+fd["name"]+"_eql_"+fd["value"]+";;"
+        }
+        console.log(this.filter_string)
+        this.load(this.current_page)
+        $(this).trigger('filter_change',this.filter_fields);
+
+    }
+
+    open_filter_form() {
+        if (this.filter_modal === false) {
+            this.filter_modal = new ElementModal(this.texts.filter_modal_title, "", true, false, $(document.body))
+            this.filter_form = new ElementForm("#", "POST", "#")
+            this.filter_form.texts["submit"] = "Set filter"
+            this.filter_form.get_el().on("submit", this._handle_filter_form_post.bind(this));
+            this.filter_modal.modalBody.empty();
+            this.filter_modal.modalBody.append(this.filter_form.get_el())
+            this.filter_form.load_fields(this.settings.filter_form_fields)
+        }
+        this.filter_modal.bs_modal.show()
+
     }
 
     _handle_imf_post(edit_modal,res) {
@@ -739,7 +773,7 @@ export class AbstractTableApp extends AbstractApp {
         }
         console.log("Loading Page: "+page);
         this._set_status(this.texts["loading"])
-        this.generic_api_getreq(this.urls["paginator_endpoint"]+this.settings["pagination_size"]+"/"+page,"cols="+cols+this._build_sort_qrystring(),this._load_handle.bind(this));
+        this.generic_api_getreq(this.urls["paginator_endpoint"]+this.settings["pagination_size"]+"/"+page,"cols="+cols+this._build_sort_qrystring()+"&filter="+this.filter_string,this._load_handle.bind(this));
     }
 
 
@@ -767,7 +801,7 @@ export class AbstractTableApp extends AbstractApp {
     }
 
     start() {
-        this.generic_api_getreq(this.urls["paginator_endpoint"]+this.settings["pagination_size"],false,this._start_handle.bind(this));
+        this.generic_api_getreq(this.urls["paginator_endpoint"]+this.settings["pagination_size"], {"filter":this.filter_string},this._start_handle.bind(this));
     }
     constructor(settings, urls, texts) {
         super(settings, urls);

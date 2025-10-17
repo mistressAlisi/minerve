@@ -42,7 +42,7 @@ export class ElementInput extends _elementProto {
         this.props = {
             "id": "id_"+id,
             "name":id,
-            "type": "text",
+            "type": type,
             "class":"form-control",
             "aria-describedby": id+"help"
         }

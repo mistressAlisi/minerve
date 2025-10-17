@@ -95,9 +95,11 @@
 
 
                               <li class="nav-item">
-                               <a class="nav-link d-flex align-items-center gap-2 text-info" {% if entry.onclick %} onclick="{{ entry.onclick }}"{% endif %}
+                               <a class="nav-link d-flex align-items-center gap-2 text-info sidebar-nav-link" {% if entry.onclick %} onclick="{{ entry.onclick }}"{% endif %}
                                        {% if entry.help_text %} title="{{ entry.help_text }}"{% endif %} aria-current="page" href="{{ entry.url }}"
+                                        {% if entry.target_url %} data-target-url="{{ entry.target_url }}"{% endif %}
                                        {%  if entry.active %} active="active"{% endif %}
+
                                   {% if entry.submenu_entries %}
                                        data-bs-toggle="collapse" aria-expanded="false" data-bs-target="#col_{{ forloop.counter }}"
                                   {% endif %}
@@ -109,10 +111,13 @@
                                    <ul class="nav flex-column collapse" id="col_{{ forloop.counter }}">
                                    {% for sub in entry.submenu_entries %}
                                       <li class="nav-item">
-                                        <a class="nav-link d-flex  gap-2 " href="{{ sub.url }}"
+                                        <a class="nav-link d-flex  gap-2 sidebar-nav-link" href="{{ sub.url }}"
                                            {% if sub.active %}active="active"{% endif %}
-                                           title="{{ sub.name }}" help_text="{{ sub.help_text }}">
+                                            {% if sub.target_url %} data-target-url="{{ sub.target_url }}"{% endif %}
+                                           title="{{ sub.name }}" help_text="{{ sub.help_text }}"
+                                           >
                                           <i class="{{ sub.icon }} me-2"></i> <span>{{ sub.name }}</span>
+
                                         </a>
                                       </li>
                                    {% endfor %}

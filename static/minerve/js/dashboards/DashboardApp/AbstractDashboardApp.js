@@ -192,7 +192,7 @@ export class    AbstractDashboardApp extends AbstractApp {
     }
 
     load_page(event) {
-        console.warn(event.target,event.target.href)
+        // console.warn(event.target,event.target.href)
         if (event.target.href.slice(-1) === "#") {
             event.preventDefault();
             event.stopPropagation();
@@ -434,7 +434,7 @@ export class    AbstractDashboardApp extends AbstractApp {
         }
     }
 
-    bind_links() {
+    bind_links() { 
         for (let clsName of this.settings["nav-link-cls"]) {
             $(clsName).on("click", this.load_page.bind(this));
         }

@@ -14,7 +14,13 @@ export class ElementForm extends _elementProto {
             "data-post-url": post_url,
             "target": target,
         }
-
+        this.texts = {
+            "submit":"Save Record"
+        }
+        if ("texts" in rest) {
+            console.warn(rest.texts)
+            $.extend(this.texts, rest.texts);
+        }
         // console.log(this.props);
         this.dom_el = this.dom_factory();
         if ("intro_str" in rest) {
@@ -52,7 +58,7 @@ export class ElementForm extends _elementProto {
                       field_obj = new ElementTextArea(field.name,field.value,{"verbose_name":field.verbose_name});
                   break;
                   default:
-                      field_obj = new ElementInput(field.name,field.type,{"text":field,"value":field.value,"verbose_name":field.verbose_name});
+                      field_obj = new ElementInput(field.name,type,{"text":field,"value":field.value,"verbose_name":field.verbose_name});
                   break;
               }
 
@@ -60,7 +66,7 @@ export class ElementForm extends _elementProto {
                   this.dom_el.append(field_obj.get_el());
               }
           }
-          let field_btn = new ElementSubmit({"label":"Save Record","class":"btn btn-accept"})
+          let field_btn = new ElementSubmit({"label":this.texts.submit,"class":"btn btn-accept"})
           this.dom_el.append(field_btn.dom_el);
     }
 }
