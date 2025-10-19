@@ -159,6 +159,8 @@ def filtered_serialiser_many(queryset, fields=[],relation_names={}):
 
                     else:
                         rdata[key] = {"value": str(curr_val.pk), "name": name}
+                else:
+                    rdata[key] = "-"
             elif type(curr_val) == UUID:
                 rdata[key] = str(curr_val)
             elif type(curr_field) == DateTimeField or type(curr_field) == DateField or type(curr_field) == TimeField:

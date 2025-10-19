@@ -18,6 +18,7 @@ export class AbstractTableApp extends AbstractApp {
         "navigation_display_status":true,
         "navigation_display_pbar":true,
         "disable_normal_toasts":false,
+        "totals_div": false,
         "toast_class":"",
         "display_cols": [],
         "filter_form_fields":[]
@@ -645,6 +646,19 @@ export class AbstractTableApp extends AbstractApp {
         this.body.empty()
         for (let key in res.data.rows) {
             this._add_row(res.data.rows[key],res.data.additional_cols);
+        }
+        if (("totals" in res.data) && (this.settings.totals_div !== false)) {
+            var tdiv = $(this.settings.totals_div);
+            tdiv.empty()
+            var tstr = false;
+            var ltdiv = false;
+            for (var key in res.data.totals) {
+                 tstr = res.data.totals[key]["name"]+" "+res.data.totals[key]["value"]+" ";
+                 ltdiv = $("<span/>",{"html":tstr})
+                 tdiv.append(ltdiv)
+
+            }
+
         }
         this.navigation.container.find("btn").removeClass('disabled');
         this.navigation.container.find("btn").attr('disabled',false);

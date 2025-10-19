@@ -81,4 +81,6 @@ def paginator_paginate_and_serialise(_obj,page=1,page_size=20,filter_cols=[],rel
         }
     if "additional_cols" in kwargs:
         retrObj["additional_cols"] = kwargs["additional_cols"]
+    if "totals" in kwargs:
+        retrObj["totals"] = kwargs["totals"]
     return JsonResponse({"res":"ok","type":"paginator_table","data":retrObj})
