@@ -262,6 +262,7 @@ export class AbstractTableApp extends AbstractApp {
                             }
                         }
                         break;
+
                     default:
                         this.props = {
                             "html": data[key],
@@ -271,6 +272,7 @@ export class AbstractTableApp extends AbstractApp {
                 }
                 let td = this.dom_factory()
                 row_data["tds"].push(td)
+
                 row_data["tr"][0].append(td[0])
             }
         }
@@ -801,7 +803,7 @@ export class AbstractTableApp extends AbstractApp {
     }
 
     start() {
-        this.generic_api_getreq(this.urls["paginator_endpoint"]+this.settings["pagination_size"], {"filter":this.filter_string},this._start_handle.bind(this));
+        this.generic_api_getreq(this.urls["paginator_endpoint"]+this.settings["pagination_size"], "filter="+this.filter_string,this._start_handle.bind(this));
     }
     constructor(settings, urls, texts) {
         super(settings, urls);
