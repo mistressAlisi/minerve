@@ -271,9 +271,10 @@ export class    AbstractDashboardApp extends AbstractApp {
         event.preventDefault();
         event.stopPropagation();
         let form = $(event.target);
-        let loadval = $(this.settings.detail_item_select)[0].value;
-        let url = form.data("detail-url") + "/" + loadval;
-        $(this.settings.detail_item_card).load(url);
+        // let loadval = $(this.settings.detail_item_select)[0].value;
+        let url = form.data("detail-url");
+        let loadformval = form.serialize()
+        $(this.settings.detail_item_card).load(url,loadformval);
         $(this.settings.detail_view_modal_sel).modal('hide');
     }
 

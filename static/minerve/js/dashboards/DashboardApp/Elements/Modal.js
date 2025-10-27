@@ -14,7 +14,10 @@ export class Modal {
     get_el() {
         return this.modalDiv;
     }
-
+    _cleanup_el() {
+        // console.log("Destroying modal.");
+        this.modalDiv.remove();
+    }
     constructor(title_str, max_width, dismissable = true, css_class = false,append_to=false) {
         // console.warn(title_str, max_width, dismissable, css_class,rest);
         this.modalId = Math.floor(Date.now() / 1000);
@@ -53,6 +56,7 @@ export class Modal {
             });
             this.header.append(this.xbtn);
             this.footer.append(this.clsbtn);
+            this.clsbtn.on("click",this._cleanup_el.bind(this));
 
         } else {
             this.modalDiv.attr('data-bs-backdrop', 'static');
