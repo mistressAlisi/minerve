@@ -1,3 +1,4 @@
+{% load crispy_forms_tags %}
 {% load django_bootstrap5 %}
 <div class="card w-90 mx-1 my-1">
     <div class="card-header">
@@ -12,19 +13,26 @@
         {% if card_form %}
             <form id="edit_form" method="POST" onsubmit="{{ card_form_onsubmit }}" data-post-url="{{  card_form_post_url }}">
             {%  csrf_token %}
-            {% bootstrap_form card_form %}
-            <div class="card-footer">
+             {% if card_form_crispy  %}
+                 {% crispy card_form %}
+             {%  else %}
+                {% bootstrap_form card_form %}
+             <div class="card-footer">
                 <div class="d-flex justify-content-end">
                     <div class="p-2"><input type="reset" class="btn btn-primary" value="Reset Form"/></div>
                     <div class="p-2"><input type="submit" class="btn btn-success" value="Save Changes"/></div>
                 </div>
             </div>
-            </form>
+
+             {% endif %}
+
+        </form>
 
         {% else %}
             <p>Empty Card Body. Replace <strong>card_body</strong> template tag or include a <strong>card_form</strong> Form.</p>
         {%  endif %}
         {%  endblock %}
+
     </div>
     </div>
 </div>
