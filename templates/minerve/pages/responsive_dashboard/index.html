@@ -40,7 +40,8 @@
     {% for css in MINERVE_PAGE_CSS %}
         <link href="/static/{{ css.css_file_path }}" rel="stylesheet">
     {% endfor %}
-
+    {% block MINERVE_HEADER_END_BLOCK %}
+    {% endblock %}
   </head>
   <body class="text-center" {% if MINERVE_BODY_THEME %} data-bs-theme="{{ MINERVE_BODY_THEME }}"{% endif %}>
       <!-- custom body Scripts !-->
