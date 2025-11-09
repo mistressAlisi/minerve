@@ -21,7 +21,8 @@ export class AbstractTableApp extends AbstractApp {
         "totals_div": false,
         "toast_class":"",
         "display_cols": [],
-        "filter_form_fields":[]
+        "filter_form_fields":[],
+        "col_actions": {}
     }
     urls = {
         "_api_prefix":"/api/v1/",
@@ -32,6 +33,7 @@ export class AbstractTableApp extends AbstractApp {
         "save_endpoint":"change/me/",
         "delete_endpoint":"change/me/",
         "internal_modal_ajax_url":"change/me/",
+        "internal_details_ajax_url":"change/me/",
     }
     texts =  {
         "navigation_aria": "Table Navigation Range",
@@ -72,6 +74,7 @@ export class AbstractTableApp extends AbstractApp {
     searchers = {
 
     }
+
     display_cols = []
     col_names = {}
     row_data = []
@@ -231,6 +234,38 @@ export class AbstractTableApp extends AbstractApp {
             this.generic_api_getreq(this.urls.edit_endpoint+uuid,false,this._internal_modal_edit_handle.bind(this));
 
     }
+    _internal_details_view_handle(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        let uuid = $(event.target).data("uuid");
+        let rowid = "__internal_det-"+uuid;
+        let parent_tbody =this._parent_walker($(event.target)[0],"TBODY")
+        let fres = parent_tbody.find("#"+rowid)
+        if (fres.length > 0) {
+            fres[0].remove();
+        } else {
+            let parent_tr = this._parent_walker($(event.target)[0], "TR")
+            window.ptr = parent_tr;
+            this.tag = "tr"
+            this.props = {
+                "id": rowid,
+                "colspan": parent_tr.children().length,
+            }
+            let new_tr = this.dom_factory();
+            parent_tr.after(new_tr)
+            let url = this.urls["_prefix"] + this.urls["internal_details_ajax_url"] + uuid;
+            this.tag = "td"
+            this.props = {
+                "html": "Loading....",
+                "colspan": parent_tr.children().length
+            }
+            let new_td = this.dom_factory();
+            new_tr.append(new_td);
+            new_td.load(url)
+            this.tag = "tr"
+            this.props = {}
+        }
+    }
 
     _add_row(data,additional_cols=false) {
 
@@ -245,6 +280,28 @@ export class AbstractTableApp extends AbstractApp {
         for (let key in data) {
             if (key === "__pk") {
                 pk = data[key]
+            } else if (key in this.settings.col_actions) {
+                // Dynamic Actions for the Columns:
+                switch (this.settings.col_actions[key]) {
+                    case "inline_details_view":
+                        this.props = {
+                                "id": "td_" + key,
+                        }
+                        let td = this.dom_factory()
+                        this.tag = "a"
+                        this.props = {
+                            "href":"#",
+                            "html":data[key],
+                            "data-uuid":data[key]
+                        }
+                        let a = this.dom_factory()
+                        td.append(a);
+                        a.on("click",this._internal_details_view_handle.bind(this))
+                        row_data["tds"].push(td)
+                        row_data["tr"][0].append(td[0])
+                        this.tag = "td"
+                    break;
+                }
             } else {
                 // console.log(key,data[key],typeof(data[key]))
                 switch (typeof (data[key])) {
