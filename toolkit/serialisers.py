@@ -164,7 +164,10 @@ def filtered_serialiser_many(queryset, fields=[],relation_names={}):
             elif type(curr_val) == UUID:
                 rdata[key] = str(curr_val)
             elif type(curr_field) == DateTimeField or type(curr_field) == DateField or type(curr_field) == TimeField:
-                rdata[key] = str(curr_val.strftime("%Y-%m-%d %H:%M:%S"))
+                if curr_val:
+                    rdata[key] = str(curr_val.strftime("%Y-%m-%d %H:%M:%S"))
+                else:
+                    rdata[key] = "-"
             elif type(curr_field) == CharField:
                 # print(curr_val)
                 rdata[key] = curr_val
