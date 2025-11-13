@@ -873,7 +873,11 @@ export class AbstractTableApp extends AbstractApp {
 
     }
 
-    start() {
+    start(page_size) {
+        if (page_size !== undefined) {
+            this.settings["pagination_size"] = page_size;
+            console.log("Setting Pagination Size: " + page_size);
+        }
         this.generic_api_getreq(this.urls["paginator_endpoint"]+this.settings["pagination_size"], "filter="+this.filter_string,this._start_handle.bind(this));
     }
     constructor(settings, urls, texts) {
